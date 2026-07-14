@@ -1,0 +1,179 @@
+{% extends "base.html" %}
+{% block title %}Analysis Results — VeritasAI{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="dashboard-header">
+        <a href="/" class="btn btn-ghost" style="margin-bottom: var(--space-md);">← Back to Analyzer</a>
+        <h1>📋 Analysis Details</h1>
+    </div>
+
+    <!-- Loading State -->
+    <div id="loadingState">
+        <div class="glass-card" style="padding: var(--space-2xl);">
+            <div class="skeleton" style="height: 40px; width: 60%; margin-bottom: var(--space-lg);"></div>
+            <div class="skeleton" style="height: 20px; width: 100%; margin-bottom: var(--space-sm);"></div>
+            <div class="skeleton" style="height: 20px; width: 90%; margin-bottom: var(--space-sm);"></div>
+            <div class="skeleton" style="height: 20px; width: 95%;"></div>
+        </div>
+    </div>
+
+    <!-- Results (populated by JS) -->
+    <div id="resultsContent" class="hidden">
+        <!-- Article Info -->
+        <div class="glass-card mb-lg" id="articleInfo">
+            <h2 id="articleTitle" style="margin-bottom: var(--space-md);"></h2>
+            <div style="display: flex; gap: var(--space-lg); margin-bottom: var(--space-md); flex-wrap: wrap;">
+                <span id="articleSource" style="font-size: 0.85rem; color: var(--text-muted);"></span>
+                <span id="articleDate" style="font-size: 0.85rem; color: var(--text-muted);"></span>
+            </div>
+            <div id="articleTextContent" style="font-size: 0.95rem; color: var(--text-secondary); line-height: 1.8; max-height: 400px; overflow-y: auto; padding-right: var(--space-md);"></div>
+        </div>
+
+        <!-- Verdict + Confidence -->
+        <div class="glass-card result-verdict mb-lg" id="detailVerdict">
+            <div class="verdict-badge" id="detailVerdictBadge">
+                <span class="verdict-icon" id="detailVerdictIcon"></span>
+                <span id="detailVerdictLabel"></span>
+            </div>
+            <div class="confidence-meter" style="flex: 1; max-width: 400px;">
+                <div class="confidence-label">
+                    <span>Confidence</span>
+                    <span id="detailConfidenceValue">0%</span>
+                </div>
+                <div class="confidence-bar">
+                    <div class="confidence-fill" id="detailConfidenceFill" style="width: 0%"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Details Grid -->
+        <div class="analysis-grid">
+            <div class="glass-card analysis-section">
+                <h3><span class="icon">💭</span> Sentiment</h3>
+                <div class="sentiment-gauge">
+                    <div class="sentiment-value" id="detailSentimentValue">0.0</div>
+                    <div class="sentiment-bars">
+                        <div class="sentiment-bar-row pos">
+                            <span style="width: 35px">Pos</span>
+                            <div class="bar"><div class="bar-fill" id="detailPosBar" style="width: 0%"></div></div>
+                            <span id="detailPosVal" style="width: 35px; text-align: right">0%</span>
+                        </div>
+                        <div class="sentiment-bar-row neg">
+                            <span style="width: 35px">Neg</span>
+                            <div class="bar"><div class="bar-fill" id="detailNegBar" style="width: 0%"></div></div>
+                            <span id="detailNegVal" style="width: 35px; text-align: right">0%</span>
+                        </div>
+                        <div class="sentiment-bar-row neu">
+                            <span style="width: 35px">Neu</span>
+                            <div class="bar"><div class="bar-fill" id="detailNeuBar" style="width: 0%"></div></div>
+                            <span id="detailNeuVal" style="width: 35px; text-align: right">0%</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="glass-card analysis-section">
+                <h3><span class="icon">🔗</span> Source Credibility</h3>
+                <div class="mb-md">
+                    <span class="credibility-badge" id="detailCredibility">UNKNOWN</span>
+                </div>
+                <div id="detailFeatures">
+                    <h3 style="margin-top: var(--space-lg);"><span class="icon">🧬</span> Key Indicators</h3>
+                    <div class="feature-tags mt-md" id="detailFeatureTags"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Actions -->
+        <div class="flex-center gap-md mt-xl mb-lg">
+            <a href="/" class="btn btn-primary">🔍 Analyze Another</a>
+            <a href="/dashboard" class="btn btn-secondary">📊 Dashboard</a>
+        </div>
+    </div>
+
+    <!-- Error State -->
+    <div id="errorState" class="hidden">
+        <div class="empty-state">
+            <div class="empty-icon">⚠️</div>
+            <h3>Article Not Found</h3>
+            <p>This analysis doesn't exist or has been removed.</p>
+            <a href="/" class="btn btn-primary mt-lg">← Go Back</a>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    const articleId = parseInt("{{ article_id }}", 10);
+    
+    document.addEventListener('DOMContentLoaded', () => {
+        loadArticleDetails(articleId);
+    });
+
+    async function loadArticleDetails(id) {
+        try {
+            const response = await fetch(`/api/article/${id}`);
+            if (!response.ok) throw new Error('Not found');
+
+            const data = await response.json();
+            document.getElementById('loadingState').classList.add('hidden');
+            document.getElementById('resultsContent').classList.remove('hidden');
+
+            // Article info
+            document.getElementById('articleTitle').textContent = data.title || 'Untitled Article';
+            document.getElementById('articleSource').textContent = data.source_name ? `📍 ${data.source_name}` : '';
+            document.getElementById('articleDate').textContent = data.created_at ? `🕐 ${new Date(data.created_at).toLocaleDateString()}` : '';
+            document.getElementById('articleTextContent').textContent = data.full_text || data.text || '';
+
+            if (data.analyses && data.analyses.length > 0) {
+                const analysis = data.analyses[0];
+
+                // Verdict
+                const isReal = analysis.prediction === 'REAL';
+                const badge = document.getElementById('detailVerdictBadge');
+                badge.className = `verdict-badge ${isReal ? 'real' : 'fake'}`;
+                document.getElementById('detailVerdictIcon').textContent = isReal ? '✅' : '❌';
+                document.getElementById('detailVerdictLabel').textContent = isReal ? 'LIKELY REAL' : 'LIKELY FAKE';
+
+                const conf = Math.round(analysis.confidence * 100);
+                document.getElementById('detailConfidenceValue').textContent = `${conf}%`;
+                const fill = document.getElementById('detailConfidenceFill');
+                fill.style.width = `${conf}%`;
+                fill.className = `confidence-fill ${conf >= 70 ? 'high' : 'low'}`;
+
+                // Sentiment
+                const sent = analysis.sentiment;
+                document.getElementById('detailSentimentValue').textContent = sent.compound.toFixed(2);
+                document.getElementById('detailSentimentValue').className = `sentiment-value ${sent.compound > 0.05 ? 'positive' : sent.compound < -0.05 ? 'negative' : 'neutral'}`;
+                document.getElementById('detailPosBar').style.width = `${(sent.positive * 100).toFixed(0)}%`;
+                document.getElementById('detailPosVal').textContent = `${(sent.positive * 100).toFixed(0)}%`;
+                document.getElementById('detailNegBar').style.width = `${(sent.negative * 100).toFixed(0)}%`;
+                document.getElementById('detailNegVal').textContent = `${(sent.negative * 100).toFixed(0)}%`;
+                document.getElementById('detailNeuBar').style.width = `${(sent.neutral * 100).toFixed(0)}%`;
+                document.getElementById('detailNeuVal').textContent = `${(sent.neutral * 100).toFixed(0)}%`;
+
+                // Credibility
+                const credBadge = document.getElementById('detailCredibility');
+                credBadge.textContent = analysis.source_credibility || 'UNKNOWN';
+                credBadge.className = `credibility-badge ${(analysis.source_credibility || 'unknown').toLowerCase()}`;
+
+                // Features
+                const featureTags = document.getElementById('detailFeatureTags');
+                featureTags.innerHTML = '';
+                if (analysis.top_features && analysis.top_features.length > 0) {
+                    analysis.top_features.forEach(f => {
+                        featureTags.innerHTML += `<span class="feature-tag">${f}</span>`;
+                    });
+                } else {
+                    featureTags.innerHTML = '<span style="color: var(--text-muted); font-size: 0.85rem;">No specific features extracted</span>';
+                }
+            }
+        } catch (err) {
+            document.getElementById('loadingState').classList.add('hidden');
+            document.getElementById('errorState').classList.remove('hidden');
+        }
+    }
+</script>
+{% endblock %}

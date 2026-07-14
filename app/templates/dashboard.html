@@ -1,0 +1,104 @@
+{% extends "base.html" %}
+{% block title %}Dashboard — VeritasAI{% endblock %}
+
+{% block content %}
+<div class="container-wide">
+    <!-- Dashboard Header -->
+    <div class="dashboard-header">
+        <h1>📊 Analytics Dashboard</h1>
+        <p>Overview of all analyzed articles, trends, and credibility insights.</p>
+    </div>
+
+    <!-- Stat Cards -->
+    <div class="stat-cards" id="statCards">
+        <div class="glass-card stat-card total">
+            <div class="stat-icon">📝</div>
+            <div class="stat-value" id="totalAnalyzed">0</div>
+            <div class="stat-label">Total Analyzed</div>
+        </div>
+        <div class="glass-card stat-card fake">
+            <div class="stat-icon">❌</div>
+            <div class="stat-value" id="fakeCount">0</div>
+            <div class="stat-label">Flagged Fake</div>
+        </div>
+        <div class="glass-card stat-card real">
+            <div class="stat-icon">✅</div>
+            <div class="stat-value" id="realCount">0</div>
+            <div class="stat-label">Verified Real</div>
+        </div>
+        <div class="glass-card stat-card confidence">
+            <div class="stat-icon">🎯</div>
+            <div class="stat-value" id="avgConfidence">0%</div>
+            <div class="stat-label">Avg Confidence</div>
+        </div>
+    </div>
+
+    <!-- Charts -->
+    <div class="charts-grid">
+        <div class="glass-card chart-card">
+            <h3>📊 Classification Distribution</h3>
+            <div class="chart-wrapper">
+                <canvas id="distributionChart"></canvas>
+            </div>
+        </div>
+        <div class="glass-card chart-card">
+            <h3>📈 Analysis Trend</h3>
+            <div class="chart-wrapper">
+                <canvas id="trendChart"></canvas>
+            </div>
+        </div>
+        <div class="glass-card chart-card">
+            <h3>🛡️ Source Credibility</h3>
+            <div class="chart-wrapper">
+                <canvas id="credibilityChart"></canvas>
+            </div>
+        </div>
+        <div class="glass-card chart-card">
+            <h3>💭 Sentiment Overview</h3>
+            <div class="chart-wrapper">
+                <canvas id="sentimentChart"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <!-- Recent History -->
+    <div class="history-section">
+        <h2>Recent Analyses</h2>
+        <div class="glass-card" style="overflow-x: auto;">
+            <table class="history-table" id="historyTable">
+                <thead>
+                    <tr>
+                        <th>Title / Preview</th>
+                        <th>Verdict</th>
+                        <th>Confidence</th>
+                        <th>Sentiment</th>
+                        <th>Source</th>
+                        <th>Date</th>
+                    </tr>
+                </thead>
+                <tbody id="historyBody">
+                    <!-- Populated by JS -->
+                </tbody>
+            </table>
+
+            <div class="empty-state hidden" id="emptyHistory">
+                <div class="empty-icon">📭</div>
+                <h3>No analyses yet</h3>
+                <p>Start by analyzing your first article on the <a href="/">Analyze</a> page.</p>
+            </div>
+        </div>
+
+        <div class="pagination" id="pagination"></div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
+<script src="{{ url_for('static', filename='js/charts.js') }}"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        loadDashboard();
+    });
+</script>
+{% endblock %}

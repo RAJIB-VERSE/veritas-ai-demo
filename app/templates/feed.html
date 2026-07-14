@@ -1,0 +1,247 @@
+{% extends "base.html" %}
+{% block title %}RSS Feeds — VeritasAI{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="dashboard-header">
+        <h1>📡 RSS Feed Monitor</h1>
+        <p>Add news feeds and automatically analyze incoming articles for misinformation.</p>
+    </div>
+
+    <!-- Add Feed -->
+    <div class="feed-header">
+        <button class="btn btn-primary" onclick="openAddFeedModal()">
+            ➕ Add Feed
+        </button>
+        <button class="btn btn-secondary" id="refreshBtn" onclick="refreshFeeds()">
+            🔄 Refresh All Feeds
+        </button>
+    </div>
+
+    <!-- Feed List -->
+    <div class="feed-list" id="feedList">
+        <!-- Populated by JS -->
+    </div>
+
+    <div class="empty-state hidden" id="emptyFeeds">
+        <div class="empty-icon">📡</div>
+        <h3>No feeds monitored</h3>
+        <p>Add an RSS feed URL to start monitoring news sources for fake content.</p>
+    </div>
+
+    <!-- Feed Articles -->
+    <div class="feed-articles mt-xl" id="feedArticles">
+        <h2 style="margin-bottom: var(--space-lg);">Recent Feed Articles</h2>
+        <div id="feedArticlesList">
+            <!-- Populated by JS -->
+        </div>
+        <div class="empty-state hidden" id="emptyArticles">
+            <div class="empty-icon">📰</div>
+            <h3>No articles fetched yet</h3>
+            <p>Click "Refresh All Feeds" to fetch and analyze articles from your feeds.</p>
+        </div>
+    </div>
+</div>
+
+<!-- Add Feed Modal -->
+<div class="modal-overlay" id="addFeedModal">
+    <div class="modal">
+        <h2>📡 Add RSS Feed</h2>
+        <div class="form-group">
+            <label class="form-label" for="feedUrl">Feed URL</label>
+            <input type="url" class="form-input" id="feedUrl" placeholder="https://feeds.reuters.com/reuters/topNews">
+        </div>
+        <div class="form-group">
+            <label class="form-label" for="feedName">Feed Name (optional)</label>
+            <input type="text" class="form-input" id="feedName" placeholder="Reuters Top News">
+        </div>
+        <div class="modal-actions">
+            <button class="btn btn-ghost" onclick="closeAddFeedModal()">Cancel</button>
+            <button class="btn btn-primary" id="addFeedBtn" onclick="addFeed()">Add Feed</button>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        loadFeeds();
+        loadFeedArticles();
+    });
+
+    function openAddFeedModal() {
+        document.getElementById('addFeedModal').classList.add('active');
+        document.getElementById('feedUrl').focus();
+    }
+
+    function closeAddFeedModal() {
+        document.getElementById('addFeedModal').classList.remove('active');
+        document.getElementById('feedUrl').value = '';
+        document.getElementById('feedName').value = '';
+    }
+
+    // Close modal on overlay click
+    document.getElementById('addFeedModal').addEventListener('click', (e) => {
+        if (e.target === e.currentTarget) closeAddFeedModal();
+    });
+
+    async function loadFeeds() {
+        try {
+            const res = await fetch('/api/feed/list');
+            const data = await res.json();
+            const list = document.getElementById('feedList');
+            const empty = document.getElementById('emptyFeeds');
+
+            if (!data.feeds || data.feeds.length === 0) {
+                list.innerHTML = '';
+                empty.classList.remove('hidden');
+                return;
+            }
+
+            empty.classList.add('hidden');
+            list.innerHTML = data.feeds.map(feed => `
+                <div class="glass-card feed-card">
+                    <div class="feed-info">
+                        <div class="feed-name">
+                            <span class="status-dot ${feed.is_active ? 'active' : 'inactive'}"></span>
+                            ${feed.name || 'Unnamed Feed'}
+                        </div>
+                        <div class="feed-url">${feed.url}</div>
+                        <div class="feed-meta">
+                            Last fetched: ${feed.last_fetched ? new Date(feed.last_fetched).toLocaleString() : 'Never'}
+                        </div>
+                    </div>
+                    <div class="feed-actions">
+                        <button class="btn btn-ghost btn-sm" onclick="toggleFeed(${feed.id})">
+                            ${feed.is_active ? '⏸️ Pause' : '▶️ Resume'}
+                        </button>
+                        <button class="btn btn-ghost btn-sm" onclick="deleteFeed(${feed.id})" style="color: var(--accent-magenta);">
+                            🗑️ Delete
+                        </button>
+                    </div>
+                </div>
+            `).join('');
+        } catch (err) {
+            showToast('Failed to load feeds', 'error');
+        }
+    }
+
+    async function addFeed() {
+        const url = document.getElementById('feedUrl').value.trim();
+        const name = document.getElementById('feedName').value.trim();
+
+        if (!url) {
+            showToast('Please enter a feed URL', 'warning');
+            return;
+        }
+
+        const btn = document.getElementById('addFeedBtn');
+        btn.classList.add('loading');
+        btn.textContent = 'Adding...';
+
+        try {
+            const res = await fetch('/api/feed/add', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ url, name })
+            });
+            const data = await res.json();
+
+            if (!res.ok) {
+                showToast(data.error || 'Failed to add feed', 'error');
+                return;
+            }
+
+            showToast('Feed added successfully!', 'success');
+            closeAddFeedModal();
+            loadFeeds();
+        } catch (err) {
+            showToast('Network error', 'error');
+        } finally {
+            btn.classList.remove('loading');
+            btn.textContent = 'Add Feed';
+        }
+    }
+
+    async function refreshFeeds() {
+        const btn = document.getElementById('refreshBtn');
+        btn.classList.add('loading');
+
+        try {
+            const res = await fetch('/api/feed/refresh', { method: 'POST' });
+            const data = await res.json();
+            showToast(data.message, 'success');
+            loadFeeds();
+            loadFeedArticles();
+        } catch (err) {
+            showToast('Failed to refresh feeds', 'error');
+        } finally {
+            btn.classList.remove('loading');
+        }
+    }
+
+    async function toggleFeed(id) {
+        try {
+            await fetch(`/api/feed/toggle/${id}`, { method: 'POST' });
+            loadFeeds();
+        } catch (err) {
+            showToast('Failed to toggle feed', 'error');
+        }
+    }
+
+    async function deleteFeed(id) {
+        if (!confirm('Delete this feed?')) return;
+        try {
+            await fetch(`/api/feed/delete/${id}`, { method: 'DELETE' });
+            showToast('Feed deleted', 'info');
+            loadFeeds();
+        } catch (err) {
+            showToast('Failed to delete feed', 'error');
+        }
+    }
+
+    async function loadFeedArticles() {
+        try {
+            const res = await fetch('/api/history?per_page=15');
+            const data = await res.json();
+            const list = document.getElementById('feedArticlesList');
+            const empty = document.getElementById('emptyArticles');
+
+            if (!data.articles || data.articles.length === 0) {
+                list.innerHTML = '';
+                empty.classList.remove('hidden');
+                return;
+            }
+
+            empty.classList.add('hidden');
+            list.innerHTML = data.articles.map(article => {
+                const analysis = article.analyses && article.analyses[0];
+                const isReal = analysis && analysis.prediction === 'REAL';
+                const conf = analysis ? Math.round(analysis.confidence * 100) : 0;
+
+                return `
+                <div class="glass-card feed-article-card">
+                    <div class="feed-article-verdict">
+                        <div class="verdict-badge ${isReal ? 'real' : 'fake'}" style="font-size: 0.8rem; padding: 4px 12px;">
+                            ${isReal ? '✅' : '❌'}
+                        </div>
+                        <div style="font-size: 0.7rem; color: var(--text-muted); margin-top: 4px;">${conf}%</div>
+                    </div>
+                    <div class="feed-article-content">
+                        <h4><a href="/results/${article.id}">${article.title || 'Untitled'}</a></h4>
+                        <p>${article.text || ''}</p>
+                        <div class="feed-article-meta">
+                            ${article.source_name ? `<span>📍 ${article.source_name}</span>` : ''}
+                            <span>🕐 ${article.created_at ? new Date(article.created_at).toLocaleDateString() : ''}</span>
+                            ${analysis ? `<span class="credibility-badge ${(analysis.source_credibility || 'unknown').toLowerCase()}" style="font-size: 0.65rem; padding: 1px 6px;">${analysis.source_credibility || 'UNKNOWN'}</span>` : ''}
+                        </div>
+                    </div>
+                </div>`;
+            }).join('');
+        } catch (err) {
+            console.error('Failed to load articles:', err);
+        }
+    }
+</script>
+{% endblock %}

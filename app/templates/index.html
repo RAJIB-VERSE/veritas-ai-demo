@@ -1,0 +1,160 @@
+{% extends "base.html" %}
+{% block title %}VeritasAI — Detect Fake News with AI{% endblock %}
+
+{% block content %}
+<div class="container">
+    <!-- Hero Section -->
+    <section class="hero">
+        <h1 class="hero-title">
+            <span class="gradient-text">Detect Fake News</span><br>
+            with AI Precision
+        </h1>
+        <p class="hero-subtitle">
+            Paste any news article below and our AI will analyze its veracity, sentiment, 
+            source credibility, and flag suspicious patterns — in seconds.
+        </p>
+    </section>
+
+    <!-- Analysis Form -->
+    <section class="analysis-form glass-card glass-card-glow" id="analysisForm">
+        <div class="form-group">
+            <label class="form-label" for="articleText">Paste Article Text</label>
+            <textarea 
+                class="form-textarea" 
+                id="articleText" 
+                placeholder="Paste the full news article text here for analysis..."
+                rows="8"
+            ></textarea>
+        </div>
+
+        <div class="form-divider">or analyze from URL</div>
+
+        <div class="form-row">
+            <div class="form-group">
+                <label class="form-label" for="articleUrl">Article URL</label>
+                <input 
+                    type="url" 
+                    class="form-input" 
+                    id="articleUrl" 
+                    placeholder="https://example.com/news/article..."
+                >
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label class="form-label" for="articleTitle">Title (Optional)</label>
+            <input 
+                type="text" 
+                class="form-input" 
+                id="articleTitle" 
+                placeholder="Article headline..."
+            >
+        </div>
+
+        <button class="btn btn-primary btn-lg btn-full" id="analyzeBtn" onclick="analyzeArticle()">
+            🔍 Analyze Article
+        </button>
+    </section>
+
+    <!-- Results Container (hidden until analysis) -->
+    <section class="result-container hidden" id="resultContainer">
+        <!-- Verdict -->
+        <div class="glass-card result-verdict" id="verdictCard">
+            <div class="verdict-badge" id="verdictBadge">
+                <span class="verdict-icon" id="verdictIcon"></span>
+                <span id="verdictLabel"></span>
+            </div>
+            <div class="confidence-meter" style="flex: 1; max-width: 400px;">
+                <div class="confidence-label">
+                    <span>Confidence</span>
+                    <span id="confidenceValue">0%</span>
+                </div>
+                <div class="confidence-bar">
+                    <div class="confidence-fill" id="confidenceFill" style="width: 0%"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Analysis Details -->
+        <div class="analysis-grid">
+            <!-- Sentiment -->
+            <div class="glass-card analysis-section">
+                <h3><span class="icon">💭</span> Sentiment Analysis</h3>
+                <div class="sentiment-gauge">
+                    <div class="sentiment-value" id="sentimentValue">0.0</div>
+                    <div class="sentiment-bars">
+                        <div class="sentiment-bar-row pos">
+                            <span style="width: 35px">Pos</span>
+                            <div class="bar"><div class="bar-fill" id="sentPosBar" style="width: 0%"></div></div>
+                            <span id="sentPosVal" style="width: 35px; text-align: right">0%</span>
+                        </div>
+                        <div class="sentiment-bar-row neg">
+                            <span style="width: 35px">Neg</span>
+                            <div class="bar"><div class="bar-fill" id="sentNegBar" style="width: 0%"></div></div>
+                            <span id="sentNegVal" style="width: 35px; text-align: right">0%</span>
+                        </div>
+                        <div class="sentiment-bar-row neu">
+                            <span style="width: 35px">Neu</span>
+                            <div class="bar"><div class="bar-fill" id="sentNeuBar" style="width: 0%"></div></div>
+                            <span id="sentNeuVal" style="width: 35px; text-align: right">0%</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="mt-md" id="sensationalismContainer" style="display: none">
+                    <div class="confidence-label">
+                        <span style="color: var(--accent-amber);">⚠️ Sensationalism</span>
+                        <span id="sensationalismValue">0%</span>
+                    </div>
+                    <div class="confidence-bar">
+                        <div class="confidence-fill" id="sensationalismFill" style="width: 0%; background: var(--gradient-warning);"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Source Analysis -->
+            <div class="glass-card analysis-section">
+                <h3><span class="icon">🔗</span> Source Analysis</h3>
+                <div class="mb-md">
+                    <span style="color: var(--text-muted); font-size: 0.8rem;">Credibility: </span>
+                    <span class="credibility-badge" id="credibilityBadge">UNKNOWN</span>
+                </div>
+                <div id="sourceDetails">
+                    <div id="credibleSources" class="mb-md" style="display:none">
+                        <div style="font-size: 0.8rem; color: var(--accent-green); margin-bottom: 4px;">✓ Credible Sources Found</div>
+                        <div class="feature-tags" id="credibleSourceTags"></div>
+                    </div>
+                    <div id="questionableSources" class="mb-md" style="display:none">
+                        <div style="font-size: 0.8rem; color: var(--accent-magenta); margin-bottom: 4px;">⚠ Questionable Sources</div>
+                        <div class="feature-tags" id="questionableSourceTags"></div>
+                    </div>
+                </div>
+                <div id="suspiciousPatterns" style="display:none">
+                    <div style="font-size: 0.8rem; color: var(--accent-amber); margin-bottom: 4px; margin-top: var(--space-md);">🚩 Suspicious Patterns</div>
+                    <div id="patternsList" style="font-size: 0.85rem; color: var(--text-secondary);"></div>
+                </div>
+            </div>
+
+            <!-- Top Features / Key Indicators -->
+            <div class="glass-card analysis-section" id="featuresSection" style="display:none">
+                <h3><span class="icon">🧬</span> Key Indicators</h3>
+                <p style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: var(--space-md);">
+                    Words that most influenced the classification:
+                </p>
+                <div class="feature-tags" id="featureTags"></div>
+            </div>
+
+            <!-- Suspicious Phrases -->
+            <div class="glass-card analysis-section" id="suspiciousSection" style="display:none">
+                <h3><span class="icon">🚨</span> Clickbait Phrases</h3>
+                <div class="feature-tags" id="suspiciousTags"></div>
+            </div>
+        </div>
+
+        <!-- Actions -->
+        <div class="flex-center gap-md mt-xl">
+            <button class="btn btn-secondary" onclick="resetForm()">🔄 Analyze Another</button>
+            <a class="btn btn-ghost" id="viewDetailsLink" href="#">View Full Details →</a>
+        </div>
+    </section>
+</div>
+{% endblock %}

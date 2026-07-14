@@ -1,0 +1,40 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+*.egg-info/
+dist/
+build/
+*.egg
+
+# Virtual Environment
+venv/
+env/
+.venv/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Data & Models (large files)
+data/*.csv
+data/*.tsv
+data/*.json
+saved_models/*.joblib
+saved_models/*.pkl
+saved_models/distilbert/
+
+# Database
+instance/
+*.db
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Environment
+.env
+*.log

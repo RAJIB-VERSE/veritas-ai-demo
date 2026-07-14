@@ -1,0 +1,208 @@
+"""
+Source credibility analyzer.
+Checks article text for source references, suspicious patterns,
+and known credible/non-credible domains.
+"""
+
+import re
+from urllib.parse import urlparse
+
+
+# Curated lists of known news sources by credibility tier
+CREDIBLE_SOURCES = {
+    'reuters.com', 'apnews.com', 'bbc.com', 'bbc.co.uk',
+    'nytimes.com', 'washingtonpost.com', 'theguardian.com',
+    'npr.org', 'pbs.org', 'economist.com', 'nature.com',
+    'sciencemag.org', 'science.org', 'pubmed.ncbi.nlm.nih.gov',
+    'who.int', 'cdc.gov', 'nih.gov', 'gov.uk',
+    'aljazeera.com', 'france24.com', 'dw.com',
+    'politico.com', 'thehill.com', 'c-span.org',
+    'snopes.com', 'factcheck.org', 'politifact.com',
+    'usatoday.com', 'abcnews.go.com', 'cbsnews.com', 'nbcnews.com',
+    'forbes.com', 'bloomberg.com', 'ft.com',
+}
+
+QUESTIONABLE_SOURCES = {
+    'infowars.com', 'naturalnews.com', 'breitbart.com',
+    'dailycaller.com', 'thegatewaypundit.com', 'zerohedge.com',
+    'worldtruth.tv', 'beforeitsnews.com', 'yournewswire.com',
+    'newspunch.com', 'globalresearch.ca', 'rt.com',
+    'sputniknews.com', 'oann.com',
+}
+
+# Suspicious clickbait patterns
+CLICKBAIT_PATTERNS = [
+    r'you won\'?t believe',
+    r'what happens next',
+    r'doctors (are|don\'?t want you|hate)',
+    r'one weird trick',
+    r'this changes everything',
+    r'exposed!*',
+    r'they don\'?t want you to know',
+    r'(big pharma|mainstream media|msm) (doesn\'?t|don\'?t|is hiding)',
+    r'share before (it\'?s|its) (deleted|removed|banned)',
+    r'(miracle|secret|ancient) (cure|remedy|trick)',
+    r'breaking:?\s*!+',
+    r'\b(shocking|bombshell|scandal|explosive)\b.*!',
+]
+
+# Compiled patterns for efficiency
+_compiled_clickbait = [re.compile(p, re.IGNORECASE) for p in CLICKBAIT_PATTERNS]
+
+
+def extract_urls(text):
+    """Extract all URLs from the text."""
+    url_pattern = r'https?://[^\s<>"{}|\\^`\[\]]+'
+    urls = re.findall(url_pattern, text)
+    return urls
+
+
+def extract_domains(urls):
+    """Extract unique domain names from a list of URLs."""
+    domains = set()
+    for url in urls:
+        try:
+            parsed = urlparse(url)
+            domain = parsed.netloc.lower()
+            # Remove www. prefix
+            if domain.startswith('www.'):
+                domain = domain[4:]
+            if domain:
+                domains.add(domain)
+        except Exception:
+            continue
+    return list(domains)
+
+
+def check_source_credibility(domains):
+    """
+    Check the credibility of extracted domains.
+    
+    Returns:
+        dict: {
+            'credibility': 'HIGH' | 'MEDIUM' | 'LOW' | 'UNKNOWN',
+            'credible_sources': list,
+            'questionable_sources': list,
+            'unknown_sources': list
+        }
+    """
+    credible = []
+    questionable = []
+    unknown = []
+
+    for domain in domains:
+        if domain in CREDIBLE_SOURCES:
+            credible.append(domain)
+        elif domain in QUESTIONABLE_SOURCES:
+            questionable.append(domain)
+        else:
+            unknown.append(domain)
+
+    # Determine overall credibility
+    if questionable:
+        credibility = 'LOW'
+    elif credible and not unknown:
+        credibility = 'HIGH'
+    elif credible:
+        credibility = 'MEDIUM'
+    elif unknown:
+        credibility = 'UNKNOWN'
+    else:
+        credibility = 'UNKNOWN'
+
+    return {
+        'credibility': credibility,
+        'credible_sources': credible,
+        'questionable_sources': questionable,
+        'unknown_sources': unknown
+    }
+
+
+def detect_clickbait(text):
+    """
+    Detect clickbait patterns in text.
+    
+    Returns:
+        list of matched clickbait phrases
+    """
+    matches = []
+    for pattern in _compiled_clickbait:
+        found = pattern.findall(text)
+        if found:
+            # Get the full match context
+            for match in pattern.finditer(text):
+                matched_text = match.group().strip()
+                if matched_text and matched_text not in matches:
+                    matches.append(matched_text)
+    return matches
+
+
+def detect_suspicious_patterns(text):
+    """
+    Detect various suspicious writing patterns.
+    
+    Returns:
+        dict with pattern analysis results
+    """
+    patterns = {
+        'excessive_caps': False,
+        'excessive_punctuation': False,
+        'no_sources_cited': True,
+        'very_short': False,
+        'clickbait_detected': False,
+        'suspicious_phrases': []
+    }
+
+    words = text.split()
+    word_count = len(words)
+
+    # Check for excessive ALL CAPS
+    if words:
+        caps_ratio = sum(1 for w in words if w.isupper() and len(w) > 2) / len(words)
+        patterns['excessive_caps'] = caps_ratio > 0.15
+
+    # Check for excessive punctuation
+    punct_count = sum(1 for c in text if c in '!?')
+    patterns['excessive_punctuation'] = punct_count > 5
+
+    # Check if sources are cited (URLs present)
+    urls = extract_urls(text)
+    patterns['no_sources_cited'] = len(urls) == 0
+
+    # Very short article
+    patterns['very_short'] = word_count < 50
+
+    # Clickbait
+    clickbait_matches = detect_clickbait(text)
+    patterns['clickbait_detected'] = len(clickbait_matches) > 0
+    patterns['suspicious_phrases'] = clickbait_matches
+
+    return patterns
+
+
+def analyze_source(text):
+    """
+    Full source analysis pipeline.
+    
+    Returns:
+        dict: Complete source analysis including credibility, 
+              suspicious patterns, and extracted sources
+    """
+    # Extract and analyze sources
+    urls = extract_urls(text)
+    domains = extract_domains(urls)
+    credibility = check_source_credibility(domains)
+
+    # Detect suspicious patterns
+    patterns = detect_suspicious_patterns(text)
+
+    return {
+        'urls_found': urls,
+        'domains': domains,
+        'credibility': credibility['credibility'],
+        'credible_sources': credibility['credible_sources'],
+        'questionable_sources': credibility['questionable_sources'],
+        'unknown_sources': credibility['unknown_sources'],
+        'suspicious_patterns': patterns,
+        'clickbait_phrases': patterns['suspicious_phrases']
+    }
