@@ -58,6 +58,16 @@ def search_and_verify(text):
                 else:
                     debunk_score += 1
                     
+            # Check for numerical contradictions (e.g. claim says '6' but sources say '11')
+            claim_numbers = set(re.findall(r'\b\d+\b', query))
+            if claim_numbers:
+                result_numbers = set(re.findall(r'\b\d+\b', combined_text))
+                # Ignore common years like 2023, 2024 to prevent false positives
+                result_numbers = {n for n in result_numbers if len(n) < 4}
+                claim_numbers_filtered = {n for n in claim_numbers if len(n) < 4}
+                if claim_numbers_filtered and result_numbers and not claim_numbers_filtered.intersection(result_numbers):
+                    debunk_score += 1  # Contradicting numerical facts
+                    
         # Decision logic
         if debunk_score >= 2:
             return {
