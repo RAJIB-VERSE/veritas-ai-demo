@@ -1,75 +1,90 @@
-# VeritasAI: Fake News Detection and Analysis System
+# VeritasAI — Fake News Detection & Analysis System
 
-https://github.com/RAJIB-VERSE/veritas-ai-demo/raw/main/assets/demo.mp4
+![VeritasAI Demo](assets/demo.gif)
 
-VeritasAI is a comprehensive, full-stack application designed to combat misinformation. It uses Machine Learning (TF-IDF + Logistic Regression, or DistilBERT) to classify news articles as "REAL" or "FAKE," along with detailed sentiment analysis and source credibility checks.
+> **AI-powered fake news detector** — paste any article and get an instant verdict with sentiment analysis, key indicators, source credibility, and clickbait detection.
 
-## Features
+🌐 **Live Demo:** [rajibverse.pythonanywhere.com](https://rajibverse.pythonanywhere.com/)
 
-- **Text & URL Analysis:** Paste raw text or provide an article URL for automatic parsing.
-- **ML Classification:** Real/Fake probability with extracted feature highlights (explainable AI).
-- **Sentiment & Sensationalism:** Analyzes tone (VADER-inspired) and flags clickbait language.
-- **Source Checking:** Extracts domains and checks against curated lists of credible and questionable sources.
-- **RSS Feed Monitor:** Automatically fetches and analyzes news from monitored feeds.
-- **Analytics Dashboard:** Visualize trends, source distributions, and historical data with Chart.js.
-- **Premium UI:** Dark-mode, glassmorphism design system.
+---
 
-## Project Structure
+## ✨ Features
+
+| Feature | Description |
+|---|---|
+| 🔍 **Real/Fake Classification** | Heuristic + TF-IDF ML classifier with explainable Key Indicators |
+| 💭 **Sentiment Analysis** | Positive / Negative / Neutral scoring with sensationalism detection |
+| 🔗 **Source Credibility** | Checks domains against curated credible & questionable source lists |
+| 🚨 **Clickbait Detection** | Flags conspiracy language, health misinfo, and political extremism |
+| 📰 **URL Scraping** | Paste a URL and let the app extract and analyze the article |
+| 📡 **RSS Feed Monitor** | Auto-fetch and analyze live news from monitored feeds |
+| 📊 **Analytics Dashboard** | Historical trends and source distribution charts |
+| 🎨 **Premium Dark UI** | Glassmorphism design with smooth micro-animations |
+
+---
+
+## 🚀 Quick Start
+
+```bash
+# 1. Install dependencies
+pip install -r requirements.txt
+
+# 2. Run the app
+python run.py
+
+# 3. Open in browser
+# http://localhost:5000
+```
+
+No model training required — the app works immediately using the built-in heuristic classifier.
+
+---
+
+## 🧪 Test It Yourself
+
+**Fake news (expect FAKE):**
+> SHOCKING: Deep State EXPOSED!!! Scientists Finally Admit Vaccines Cause Autism — Big Pharma FURIOUS as Mainstream Media Tries to SUPPRESS This Story!!!
+
+**Real news (expect REAL):**
+> The Federal Reserve raised interest rates by 0.25 percentage points on Wednesday, according to a statement from the central bank. Fed Chair Jerome Powell said the decision was aimed at curbing inflation, which stood at 3.2% in June.
+
+---
+
+## 🗂️ Project Structure
 
 ```
-Fake News Detection and Analysis System/
-├── app/                  # Flask web application
-│   ├── models/           # SQLite database models
-│   ├── routes/           # API and page routes
-│   ├── services/         # ML inference, NLP, and web scraping
-│   ├── static/           # CSS (glassmorphism) and JS
-│   └── templates/        # HTML templates
-├── ml/                   # Model training scripts (TF-IDF & BERT)
-├── data/                 # Datasets (e.g., WELFake)
-├── saved_models/         # Serialized pipelines (.joblib)
-├── config.py             # Configuration
-├── run.py                # Entry point
-└── requirements.txt      # Dependencies
+├── app/
+│   ├── models/        # SQLite database models
+│   ├── routes/        # API and page routes (api.py, main.py, feed.py)
+│   ├── services/      # classifier.py, sentiment.py, rss_fetcher.py, source_analyzer.py
+│   ├── static/        # CSS (glassmorphism) and JS
+│   └── templates/     # HTML templates (index, results, dashboard, feed)
+├── ml/                # Model training scripts (TF-IDF & BERT)
+├── saved_models/      # Drop trained .joblib pipeline here
+├── assets/            # Demo GIF and media
+├── config.py
+├── run.py
+└── requirements.txt
 ```
 
-## Quick Start (Demo Mode)
+---
 
-You can run the app immediately without training a model. It will use a heuristic-based "Demo Mode" for classification until a model is trained.
+## 🤖 Training a Custom ML Model
 
-1. **Install dependencies:**
-   ```bash
-   pip install -r requirements.txt
-   ```
-2. **Run the Flask app:**
-   ```bash
-   python run.py
-   ```
-3. **Open in browser:** `http://localhost:5000`
+For higher accuracy, train on the [WELFake dataset (Kaggle)](https://www.kaggle.com/datasets/saurabhshahane/fake-news-classification):
 
-## Training a Custom Model (TF-IDF + LogReg)
+```bash
+# Download and place dataset
+# data/WELFake_Dataset.csv
 
-For real ML classification, you'll need a dataset like [WELFake from Kaggle](https://www.kaggle.com/datasets/saurabhshahane/fake-news-classification).
+# Train TF-IDF + Logistic Regression pipeline
+python ml/train_tfidf.py --data data/WELFake_Dataset.csv
 
-1. Download the dataset and place it in the `data/` folder (e.g., `data/WELFake_Dataset.csv`).
-2. Run the training script:
-   ```bash
-   python ml/train_tfidf.py --data data/WELFake_Dataset.csv
-   ```
-3. The pipeline will be saved to `saved_models/tfidf_logreg_pipeline.joblib`. The web app will automatically load it on the next restart.
+# The pipeline is saved to saved_models/tfidf_logreg_pipeline.joblib
+# Restart the app and it loads automatically
+```
 
-## Advanced: DistilBERT Fine-Tuning
+---
 
-If you want state-of-the-art performance using deep learning:
-
-1. Install extra dependencies: `pip install transformers datasets torch`
-2. Run the BERT training script:
-   ```bash
-   python ml/train_bert.py --data data/WELFake_Dataset.csv
-   ```
-3. Push to Hugging Face Hub (optional):
-   ```bash
-   python ml/export_hf.py --repo_id "your_username/fakenews-model" --token "YOUR_HF_TOKEN"
-   ```
-
-## License
+## 📄 License
 MIT License

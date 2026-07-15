@@ -38,3 +38,10 @@ Thumbs.db
 # Environment
 .env
 *.log
+
+# One-time utility scripts
+convert_gif.py
+README_HF.md
+
+# Large raw video file (use the GIF in assets/ instead)
+assets/demo.mp4

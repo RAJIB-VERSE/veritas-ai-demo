@@ -16,6 +16,9 @@ feedparser>=6.0
 beautifulsoup4>=4.12
 requests>=2.31
 
+# Production WSGI server (used by Hugging Face Docker Space)
+waitress>=3.0
+
 # Optional: Hugging Face Transformers (for DistilBERT)
 # transformers>=4.40
 # torch>=2.2
