@@ -118,6 +118,47 @@ TROLL_PHRASES = [
     'injected lysol', 'ate tide pods'
 ]
 
+# Extraordinary / impossible claim patterns (regex)
+EXTRAORDINARY_CLAIM_PATTERNS = [
+    # Absurd financial claims
+    r'(?:bitcoin|btc|ethereum|eth)\s+(?:reached|hit|surpass|worth)\s+\$?\d[\d,]*\s*(?:million|billion|trillion)',
+    r'(?:stock|share)\s+(?:price|value)\s+(?:crashed?|fell|dropped?)\s+to\s+\$?0',
+    r'(?:national\s+debt|deficit)\s+(?:was\s+)?(?:paid\s+off|eliminated|wiped|erased)',
+    r'giving\s+away\s+\$?\d[\d,]*\s*(?:million|billion|trillion)?\s*(?:to\s+every|to\s+each|to\s+all)',
+    r'\$\d[\d,]*\s*(?:million|billion)\s+(?:to\s+every|to\s+each|per\s+person)',
+    r'gdp\s+(?:grew|growth|increased|surged|jumped)\s+(?:by\s+)?\d{2,}\s*%',
+    # Absurd political claims
+    r'(?:resigned|stepping\s+down|abdicated)\s+as\s+(?:president|prime\s+minister|king|queen|emperor)',
+    r'declared\s+war\s+on\s+(?:canada|mexico|uk|united\s+kingdom|france|germany|japan|australia)',
+    r'(?:alien|ufo|extraterrestrial)s?\s+(?:landed|arrived|confirmed|discovered)',
+    r'secretly\s+deployed\s+(?:by|to|for|in)',
+    r'(?:cia|fbi|mi6|mossad|government)\s+(?:secretly|covertly)\s+(?:controls?|deployed|using)',
+    # Death hoaxes and celebrity misinformation
+    r'(?:has\s+)?(?:died|passed\s+away|been\s+killed|been\s+assassinated).*(?:confirmed|breaking)',
+    r'(?:arrested|jailed|imprisoned)\s+for\s+(?:treason|crimes\s+against\s+humanity)',
+    # Impossible science/health claims
+    r'(?:cure|cures)\s+(?:for\s+)?(?:cancer|hiv|aids|diabetes|alzheimer)',
+    r'(?:vaccine|vaccines)\s+(?:cause|causes|causing)\s+(?:autism|death|infertility)',
+]
+
+_compiled_extraordinary = [re.compile(p, re.IGNORECASE) for p in EXTRAORDINARY_CLAIM_PATTERNS]
+
+# Viral hoax template phrases
+VIRAL_HOAX_PHRASES = [
+    'giving away', 'free money', 'free cash',
+    'to every citizen', 'to every user', 'to every person',
+    'to every american', 'to every indian', 'to all citizens',
+    'has been secretly', 'was secretly', 'covertly',
+    'sending shockwaves', 'stunned the world', 'stunned the nation',
+    'in a stunning move', 'in a shocking move', 'in a bombshell',
+    'world leaders are panicking', 'governments are scrambling',
+    'the internet is breaking', 'the internet has gone wild',
+    'completely eliminated', 'totally eradicated',
+    'in 190 countries', 'across all countries',
+    'anonymous sources confirm', 'sources close to',
+    'whistleblower reveals', 'leaked documents show',
+]
+
 ATTRIBUTION_PHRASES = [
     'according to', 'reuters', 'associated press', ' ap ', 'bbc',
     ' said', 'confirmed', 'spokesperson', 'press release',
@@ -220,7 +261,23 @@ def _heuristic_predict(text):
             fake_score += 0.99  # very high score for obvious troll/joke claims
             features.append(f"obvious troll/joke claim: \"{phrase}\"")
 
-    # 10. Excessive ALL CAPS (use ORIGINAL text, not lowered)
+    # 10. Extraordinary / impossible claims
+    extraordinary_matches = [p.pattern for p in _compiled_extraordinary if p.search(text)]
+    if extraordinary_matches:
+        fake_score += 0.50
+        features.append(f"extraordinary/impossible claim detected ({len(extraordinary_matches)} patterns)")
+
+    # 11. Viral hoax template phrases
+    hoax_count = 0
+    for phrase in VIRAL_HOAX_PHRASES:
+        if phrase in text_lower:
+            hoax_count += 1
+    if hoax_count >= 1:
+        bump = min(hoax_count * 0.12, 0.50)
+        fake_score += bump
+        features.append(f"viral hoax patterns ({hoax_count} phrases)")
+
+    # 12. Excessive ALL CAPS (use ORIGINAL text, not lowered)
     words = text.split()
     total_words = len(words) if words else 1
     caps_words = sum(1 for w in words if w.isupper() and len(w) > 2)
@@ -230,7 +287,7 @@ def _heuristic_predict(text):
         fake_score += bump
         features.append(f"excessive ALL CAPS ({caps_words}/{total_words} words)")
 
-    # 8. Punctuation abuse (use ORIGINAL text)
+    # 13. Punctuation abuse (use ORIGINAL text)
     excl_runs = len(re.findall(r'!{2,}', text))
     quest_runs = len(re.findall(r'\?{2,}', text))
     if excl_runs > 0:
@@ -240,20 +297,24 @@ def _heuristic_predict(text):
         fake_score += min(quest_runs * 0.03, 0.10)
         features.append(f"punctuation abuse: {quest_runs} question clusters")
 
-    # 9. Missing attribution (no source references in text)
+    # 14. Missing attribution (no source references in text)
     has_attribution = any(p in text_lower for p in ATTRIBUTION_PHRASES)
     if not has_attribution and total_words > 30:
         fake_score += 0.08
         features.append("no attribution or source references found")
 
     # --- REAL signals (reduce fake_score) ---
+    # NOTE: Real signal reductions are CAPPED and will NOT override strong
+    # fake signals (extraordinary claims, AI markers, etc.)
 
     # 1. Attribution phrases present
     attribution_count = sum(1 for p in ATTRIBUTION_PHRASES if p in text_lower)
     if attribution_count > 0:
-        reduction = min(attribution_count * 0.04, 0.15)
-        fake_score -= reduction
-        features.append(f"attribution found ({attribution_count} phrases)")
+        # Don't let attribution reduce score if extraordinary claim detected
+        if not extraordinary_matches:
+            reduction = min(attribution_count * 0.04, 0.15)
+            fake_score -= reduction
+            features.append(f"attribution found ({attribution_count} phrases)")
 
     # 2. Hedging language
     hedging_count = sum(1 for p in HEDGING_LANGUAGE if p in text_lower)
@@ -263,6 +324,8 @@ def _heuristic_predict(text):
         features.append(f"hedging language ({hedging_count} phrases)")
 
     # 3. Precise numbers, percentages, dates
+    # NOTE: Precise data should NOT reduce fake score when the claim itself
+    # is extraordinary — fabricated claims often include precise-looking numbers
     numbers = re.findall(r'\b\d+\.?\d*\s*%', text)  # percentages
     dates = re.findall(
         r'\b(?:January|February|March|April|May|June|July|August|September|'
@@ -272,7 +335,7 @@ def _heuristic_predict(text):
         text, re.IGNORECASE
     )
     precise_count = len(numbers) + len(dates)
-    if precise_count >= 2:
+    if precise_count >= 2 and not extraordinary_matches:
         reduction = min(precise_count * 0.03, 0.12)
         fake_score -= reduction
         features.append(f"precise data ({len(numbers)} percentages, {len(dates)} dates)")

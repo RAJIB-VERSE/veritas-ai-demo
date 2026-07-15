@@ -124,6 +124,28 @@ def fetch_article_content(url):
         }
 
     try:
+        # SSRF Protection: Block requests to internal/private IP ranges
+        from urllib.parse import urlparse
+        import socket
+        import ipaddress
+
+        parsed_url = urlparse(url)
+        hostname = parsed_url.hostname
+        if hostname:
+            try:
+                resolved_ip = socket.gethostbyname(hostname)
+                ip_obj = ipaddress.ip_address(resolved_ip)
+                if ip_obj.is_private or ip_obj.is_loopback or ip_obj.is_reserved or ip_obj.is_link_local:
+                    return {
+                        'title': '', 'text': '',
+                        'error': 'URL points to a private/internal address. Please provide a public URL.'
+                    }
+            except socket.gaierror:
+                return {
+                    'title': '', 'text': '',
+                    'error': 'Could not resolve hostname. Please check the URL.'
+                }
+
         headers = {
             'User-Agent': (
                 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) '

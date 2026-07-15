@@ -29,9 +29,18 @@ def analyze():
     if not data:
         return jsonify({'error': 'Request body must be JSON'}), 400
 
-    text = data.get('text', '').strip()
-    title = data.get('title', '').strip()
+    # Input sanitization: strip HTML tags to prevent XSS
+    import re as _re
+    def _strip_html(s):
+        return _re.sub(r'<[^>]+>', '', s) if s else ''
+
+    text = _strip_html(data.get('text', '')).strip()
+    title = _strip_html(data.get('title', '')).strip()[:500]  # Cap title length
     url = data.get('url', '').strip()
+
+    # Validate URL format if provided
+    if url and not url.startswith(('http://', 'https://')):
+        url = ''  # Silently discard invalid URLs
 
     # If URL provided but no text, try to fetch the article
     if url and not text:
@@ -110,13 +119,29 @@ def analyze():
         if 'features' in classification: classification['features'].append(msg)
         if 'top_features' in classification: classification['top_features'].append(msg)
     elif fact_check['status'] == 'verified':
-        classification['label'] = 'REAL'
-        classification['real_prob'] = 0.90
-        classification['fake_prob'] = 0.10
-        classification['confidence'] = 0.90
-        msg = "Fact Checked: Live web search found credible sources verifying this claim."
-        if 'features' in classification: classification['features'].append(msg)
-        if 'top_features' in classification: classification['top_features'].append(msg)
+        # CRITICAL FIX: The fact checker "verified" should NOT override a strong
+        # FAKE classification. If the heuristic/ML classifier flagged it as FAKE
+        # with high confidence, trust the classifier over a web search that just
+        # found articles mentioning related keywords.
+        classifier_says_fake = classification['label'] == 'FAKE'
+        classifier_high_confidence = classification.get('fake_prob', 0) >= 0.50
+
+        if classifier_says_fake and classifier_high_confidence:
+            # Conflicting signals: classifier says FAKE but web search found
+            # matching articles. Don't flip to REAL — keep as FAKE but note
+            # the conflicting signal.
+            msg = "Conflicting Signal: Web search found related sources, but classifier detected strong fake indicators. Maintaining FAKE classification."
+            if 'features' in classification: classification['features'].append(msg)
+            if 'top_features' in classification: classification['top_features'].append(msg)
+        else:
+            # Classifier was leaning REAL or was uncertain — fact check can boost
+            classification['label'] = 'REAL'
+            classification['real_prob'] = 0.85
+            classification['fake_prob'] = 0.15
+            classification['confidence'] = 0.85
+            msg = "Fact Checked: Live web search found credible sources verifying this claim."
+            if 'features' in classification: classification['features'].append(msg)
+            if 'top_features' in classification: classification['top_features'].append(msg)
 
     # Store in database
     article = Article(
