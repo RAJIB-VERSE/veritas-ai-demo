@@ -43,8 +43,10 @@ def analyze():
         if not title:
             title = fetched['title']
 
-    if not text:
-        return jsonify({'error': 'No text provided for analysis'}), 400
+    if not text or len(text.strip()) < 50:
+        return jsonify({
+            'error': 'Not enough text to analyze. Please provide at least 50 characters of article text, or paste the article text directly.'
+        }), 400
 
     if len(text) > 50000:
         return jsonify({'error': 'Text exceeds maximum length of 50,000 characters'}), 400

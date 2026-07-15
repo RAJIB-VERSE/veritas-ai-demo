@@ -1,12 +1,11 @@
 """
 ML classifier service.
 Wraps the trained TF-IDF + Logistic Regression model for inference,
-with fallback demo predictions when no model is available.
+with a robust heuristic fallback when no model is available.
 """
 
 import os
-import json
-import numpy as np
+import re
 
 # Global model cache
 _model = None
@@ -49,88 +48,234 @@ def load_model():
             _vectorizer = joblib.load(paths['vectorizer'])
             _model = joblib.load(paths['model'])
             _model_type = 'separate'
-            print(f"[Classifier] Loaded separate vectorizer + model")
+            print("[Classifier] Loaded separate vectorizer + model")
             return True
 
     except Exception as e:
         print(f"[Classifier] Error loading model: {e}")
 
-    print("[Classifier] No trained model found. Using demo mode with heuristic predictions.")
-    _model_type = 'demo'
+    print("[Classifier] No trained model found. Using heuristic classifier.")
+    _model_type = 'heuristic'
     return False
 
 
-def _demo_predict(text):
+# ---------------------------------------------------------------------------
+# Signal dictionaries for the heuristic classifier
+# ---------------------------------------------------------------------------
+
+SENSATIONALIST_WORDS = [
+    'shocking', 'bombshell', 'exposed', 'breaking', "you won't believe",
+    'unbelievable', 'urgent', 'terrifying', 'alarming', 'explosive',
+    'scandal', 'outrageous', 'insane', 'mind-blowing',
+]
+
+CONSPIRACY_LANGUAGE = [
+    'deep state', 'false flag', 'cover-up', 'coverup', 'shadow government',
+    'cabal', 'globalist', 'new world order', 'illuminati', 'puppet masters',
+    'controlled opposition', 'psyop', 'plandemic',
+]
+
+CLICKBAIT_PHRASES = [
+    "doctors don't want you to know", "share before deleted",
+    "wake up sheeple", "they don't want you to know",
+    "share before they delete", "one weird trick",
+    "what they're hiding", "this changes everything",
+    "mainstream media won't tell you", "banned from the internet",
+    "share before it's too late",
+]
+
+HEALTH_MISINFO = [
+    'big pharma', 'miracle cure', 'vaccine causes autism', 'vaccines cause autism',
+    'vaccine cause autism', 'doctors hate',
+    'natural remedy they', 'essential oils cure', 'government poison',
+    'vaccines are poison', 'detox your body', 'suppressed cure',
+]
+
+POLITICAL_EXTREMISM = [
+    'stolen election', 'deep state coup', 'communist agenda',
+    'marxist takeover', 'great replacement', 'white genocide',
+    'radical left agenda', 'radical right agenda',
+]
+
+SKETCHY_DOMAINS = [
+    'infowars', 'naturalnews', 'beforeitsnews', 'thegatewaypundit',
+    'worldtruth.tv', 'yournewswire', 'newspunch', 'globalresearch.ca',
+]
+
+ATTRIBUTION_PHRASES = [
+    'according to', 'reuters', 'associated press', ' ap ', 'bbc',
+    ' said', 'confirmed', 'spokesperson', 'press release',
+    'in a statement', 'told reporters', 'official said',
+    'department said', 'ministry said', 'reported by',
+]
+
+HEDGING_LANGUAGE = [
+    'allegedly', 'reportedly', 'appears to', 'is believed to',
+    'sources say', 'it is unclear', 'unconfirmed', 'may have',
+    'could be', 'is expected to', 'remains to be seen',
+]
+
+
+def _heuristic_predict(text):
     """
-    Heuristic-based demo prediction when no ML model is available.
-    Uses simple text features to generate a plausible prediction.
+    Robust heuristic-based prediction when no ML model is available.
+    Scores multiple FAKE and REAL signal categories against the text.
+
+    Returns the standard predict() contract:
+        {
+            "label": "FAKE" or "REAL",
+            "confidence": float 0-1,
+            "fake_prob": float 0-1,
+            "real_prob": float 0-1,
+            "mode": "heuristic",
+            "features": list of triggered signal descriptions
+        }
     """
-    from app.services.preprocessor import clean_text
-
-    text_lower = clean_text(text)
-    fake_score = 0.0
-
-    # Sensationalist language indicators
-    sensational_words = [
-        'shocking', 'breaking', 'unbelievable', 'you won\'t believe',
-        'exposed', 'conspiracy', 'secret', 'they don\'t want you to know',
-        'mainstream media', 'wake up', 'hoax', 'scam', 'urgent',
-        'bombshell', 'scandal', 'coverup', 'deep state', 'alarming',
-        'terrifying', 'miracle', 'cure', 'banned', 'censored'
-    ]
-    for word in sensational_words:
-        if word in text_lower:
-            fake_score += 0.08
-
-    # Excessive punctuation (!!!???)
-    exclamation_count = text.count('!')
-    question_count = text.count('?')
-    if exclamation_count > 3:
-        fake_score += 0.1
-    if question_count > 5:
-        fake_score += 0.05
-
-    # ALL CAPS ratio
-    words = text.split()
-    if words:
-        caps_ratio = sum(1 for w in words if w.isupper() and len(w) > 2) / len(words)
-        if caps_ratio > 0.15:
-            fake_score += 0.15
-
-    # Very short text is suspicious
-    if len(text.split()) < 20:
-        fake_score += 0.1
-
-    # Clamp score
-    fake_score = min(fake_score, 0.95)
-    fake_score = max(fake_score, 0.05)
-
-    # If nothing suspicious, lean towards real
-    if fake_score < 0.3:
+    if not text or not isinstance(text, str):
         return {
             'label': 'REAL',
-            'confidence': round(1.0 - fake_score, 4),
+            'confidence': 0.5,
+            'fake_prob': 0.5,
+            'real_prob': 0.5,
+            'mode': 'heuristic',
+            'features': [],
+            # Legacy keys for DB compatibility
             'top_features': [],
-            'model_used': 'demo_heuristic'
+            'model_used': 'heuristic',
         }
-    else:
-        return {
-            'label': 'FAKE',
-            'confidence': round(fake_score, 4),
-            'top_features': [w for w in sensational_words if w in text_lower][:10],
-            'model_used': 'demo_heuristic'
-        }
+
+    text_lower = text.lower()
+    fake_score = 0.0
+    features = []
+
+    # --- FAKE signals ---
+
+    # 1. Sensationalist words
+    for word in SENSATIONALIST_WORDS:
+        if word in text_lower:
+            fake_score += 0.06
+            features.append(f"sensationalist: \"{word}\"")
+
+    # 2. Conspiracy language
+    for phrase in CONSPIRACY_LANGUAGE:
+        if phrase in text_lower:
+            fake_score += 0.08
+            features.append(f"conspiracy: \"{phrase}\"")
+
+    # 3. Clickbait phrases
+    for phrase in CLICKBAIT_PHRASES:
+        if phrase in text_lower:
+            fake_score += 0.10
+            features.append(f"clickbait: \"{phrase}\"")
+
+    # 4. Health misinformation
+    for phrase in HEALTH_MISINFO:
+        if phrase in text_lower:
+            fake_score += 0.08
+            features.append(f"health misinfo: \"{phrase}\"")
+
+    # 5. Political extremism
+    for phrase in POLITICAL_EXTREMISM:
+        if phrase in text_lower:
+            fake_score += 0.07
+            features.append(f"extremism: \"{phrase}\"")
+
+    # 6. Sketchy domains mentioned in text
+    for domain in SKETCHY_DOMAINS:
+        if domain in text_lower:
+            fake_score += 0.08
+            features.append(f"sketchy source: \"{domain}\"")
+
+    # 7. Excessive ALL CAPS (use ORIGINAL text, not lowered)
+    words = text.split()
+    total_words = len(words) if words else 1
+    caps_words = sum(1 for w in words if w.isupper() and len(w) > 2)
+    caps_ratio = caps_words / total_words
+    if caps_ratio > 0.05:
+        bump = min(caps_ratio * 2.0, 0.20)
+        fake_score += bump
+        features.append(f"excessive ALL CAPS ({caps_words}/{total_words} words)")
+
+    # 8. Punctuation abuse (use ORIGINAL text)
+    excl_runs = len(re.findall(r'!{2,}', text))
+    quest_runs = len(re.findall(r'\?{2,}', text))
+    if excl_runs > 0:
+        fake_score += min(excl_runs * 0.04, 0.15)
+        features.append(f"punctuation abuse: {excl_runs} exclamation clusters")
+    if quest_runs > 0:
+        fake_score += min(quest_runs * 0.03, 0.10)
+        features.append(f"punctuation abuse: {quest_runs} question clusters")
+
+    # 9. Missing attribution (no source references in text)
+    has_attribution = any(p in text_lower for p in ATTRIBUTION_PHRASES)
+    if not has_attribution and total_words > 30:
+        fake_score += 0.08
+        features.append("no attribution or source references found")
+
+    # --- REAL signals (reduce fake_score) ---
+
+    # 1. Attribution phrases present
+    attribution_count = sum(1 for p in ATTRIBUTION_PHRASES if p in text_lower)
+    if attribution_count > 0:
+        reduction = min(attribution_count * 0.04, 0.15)
+        fake_score -= reduction
+        features.append(f"attribution found ({attribution_count} phrases)")
+
+    # 2. Hedging language
+    hedging_count = sum(1 for p in HEDGING_LANGUAGE if p in text_lower)
+    if hedging_count > 0:
+        reduction = min(hedging_count * 0.03, 0.10)
+        fake_score -= reduction
+        features.append(f"hedging language ({hedging_count} phrases)")
+
+    # 3. Precise numbers, percentages, dates
+    numbers = re.findall(r'\b\d+\.?\d*\s*%', text)  # percentages
+    dates = re.findall(
+        r'\b(?:January|February|March|April|May|June|July|August|September|'
+        r'October|November|December)\s+\d{1,2}(?:,?\s*\d{4})?'
+        r'|\b\d{1,2}/\d{1,2}/\d{2,4}\b'
+        r'|\b\d{4}-\d{2}-\d{2}\b',
+        text, re.IGNORECASE
+    )
+    precise_count = len(numbers) + len(dates)
+    if precise_count >= 2:
+        reduction = min(precise_count * 0.03, 0.12)
+        fake_score -= reduction
+        features.append(f"precise data ({len(numbers)} percentages, {len(dates)} dates)")
+
+    # Clamp score to [0.02, 0.98]
+    fake_score = max(0.02, min(fake_score, 0.98))
+
+    # Determine label using threshold
+    label = 'FAKE' if fake_score >= 0.35 else 'REAL'
+    confidence = fake_score if label == 'FAKE' else (1.0 - fake_score)
+
+    return {
+        'label': label,
+        'confidence': round(confidence, 4),
+        'fake_prob': round(fake_score, 4),
+        'real_prob': round(1.0 - fake_score, 4),
+        'mode': 'heuristic',
+        'features': features,
+        # Legacy keys the DB / API layer already reference
+        'top_features': features,
+        'model_used': 'heuristic',
+    }
 
 
 def predict(text):
     """
     Classify text as REAL or FAKE.
-    
+
     Returns:
         dict: {
             'label': 'REAL' or 'FAKE',
             'confidence': float (0-1),
-            'top_features': list of influential words,
+            'fake_prob': float (0-1),
+            'real_prob': float (0-1),
+            'mode': 'tfidf' or 'heuristic',
+            'features': list of triggered signal descriptions,
+            'top_features': same as features (legacy compat),
             'model_used': str
         }
     """
@@ -139,8 +284,8 @@ def predict(text):
     if _model_type is None:
         load_model()
 
-    if _model_type == 'demo' or _model is None:
-        return _demo_predict(text)
+    if _model_type == 'heuristic' or _model is None:
+        return _heuristic_predict(text)
 
     from app.services.preprocessor import preprocess_pipeline
 
@@ -148,38 +293,39 @@ def predict(text):
 
     try:
         if _model_type == 'pipeline':
-            # Pipeline has vectorizer + model combined
             proba = _model.predict_proba([processed_text])[0]
             prediction = _model.predict([processed_text])[0]
-
-            # Extract top features from the pipeline
             top_features = _extract_top_features_pipeline(processed_text)
 
         elif _model_type == 'separate':
-            # Separate vectorizer and model
             tfidf_vector = _vectorizer.transform([processed_text])
             proba = _model.predict_proba(tfidf_vector)[0]
             prediction = _model.predict(tfidf_vector)[0]
-
             top_features = _extract_top_features_separate(tfidf_vector)
 
         else:
-            return _demo_predict(text)
+            return _heuristic_predict(text)
 
-        # Map prediction to label
+        # Map prediction to label (class 1 = FAKE, class 0 = REAL)
         label = 'FAKE' if prediction == 1 else 'REAL'
+        fake_prob = float(proba[1]) if len(proba) > 1 else (float(proba[0]) if prediction == 1 else 1.0 - float(proba[0]))
+        real_prob = 1.0 - fake_prob
         confidence = float(max(proba))
 
         return {
             'label': label,
             'confidence': round(confidence, 4),
+            'fake_prob': round(fake_prob, 4),
+            'real_prob': round(real_prob, 4),
+            'mode': 'tfidf',
+            'features': top_features,
             'top_features': top_features,
-            'model_used': 'tfidf_logreg'
+            'model_used': 'tfidf_logreg',
         }
 
     except Exception as e:
         print(f"[Classifier] Prediction error: {e}")
-        return _demo_predict(text)
+        return _heuristic_predict(text)
 
 
 def _extract_top_features_pipeline(text, n=10):
@@ -195,7 +341,6 @@ def _extract_top_features_pipeline(text, n=10):
         tfidf_vector = vectorizer.transform([text])
         coefficients = classifier.coef_[0]
 
-        # Get feature indices present in this text
         nonzero_indices = tfidf_vector.nonzero()[1]
         feature_scores = [
             (feature_names[i], float(coefficients[i] * tfidf_vector[0, i]))

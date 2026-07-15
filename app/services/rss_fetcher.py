@@ -102,24 +102,59 @@ def fetch_article_content(url):
     """
     Fetch the full text content of an article from its URL.
     Uses basic HTML parsing to extract main text content.
-    
+
     Args:
         url: Article URL
-        
+
     Returns:
         dict: {'title': str, 'text': str, 'error': str or None}
     """
     if not HAS_REQUESTS:
         return {'title': '', 'text': '', 'error': 'requests is not installed'}
 
+    # Validate URL format
+    if not url or not isinstance(url, str):
+        return {'title': '', 'text': '', 'error': 'Invalid URL provided.'}
+
+    url = url.strip()
+    if not url.startswith(('http://', 'https://')):
+        return {
+            'title': '', 'text': '',
+            'error': 'Invalid URL. Please provide a URL starting with http:// or https://'
+        }
+
     try:
         headers = {
-            'User-Agent': 'Mozilla/5.0 (compatible; FakeNewsDetector/1.0)'
+            'User-Agent': (
+                'Mozilla/5.0 (Windows NT 10.0; Win64; x64) '
+                'AppleWebKit/537.36 (KHTML, like Gecko) '
+                'Chrome/120.0.0.0 Safari/537.36'
+            )
         }
-        response = requests.get(url, headers=headers, timeout=10)
-        response.raise_for_status()
+        response = requests.get(url, headers=headers, timeout=10, allow_redirects=True)
 
+        # Handle common HTTP errors with clear messages
+        if response.status_code == 403:
+            return {
+                'title': '', 'text': '',
+                'error': 'Access denied (403 Forbidden). This site blocks automated requests. Please paste the article text directly.'
+            }
+        if response.status_code == 404:
+            return {
+                'title': '', 'text': '',
+                'error': 'Page not found (404). Please check the URL and try again.'
+            }
+        if response.status_code >= 500:
+            return {
+                'title': '', 'text': '',
+                'error': f'The server returned an error ({response.status_code}). Please try again later.'
+            }
+
+        response.raise_for_status()
         html = response.text
+
+        title = ''
+        text = ''
 
         # Try BeautifulSoup if available
         try:
@@ -131,7 +166,6 @@ def fetch_article_content(url):
                 tag.decompose()
 
             # Get title
-            title = ''
             title_tag = soup.find('title')
             if title_tag:
                 title = title_tag.get_text(strip=True)
@@ -145,26 +179,49 @@ def fetch_article_content(url):
                 paragraphs = soup.find_all('p')
                 text = ' '.join(p.get_text(strip=True) for p in paragraphs)
 
-            return {'title': title, 'text': text, 'error': None}
-
         except ImportError:
             # Fallback: basic regex extraction
             import re
             title_match = re.search(r'<title>(.*?)</title>', html, re.IGNORECASE | re.DOTALL)
             title = title_match.group(1).strip() if title_match else ''
 
-            # Remove HTML tags
             text = re.sub(r'<script[^>]*>.*?</script>', '', html, flags=re.DOTALL | re.IGNORECASE)
             text = re.sub(r'<style[^>]*>.*?</style>', '', text, flags=re.DOTALL | re.IGNORECASE)
             text = re.sub(r'<[^>]+>', ' ', text)
             text = re.sub(r'\s+', ' ', text).strip()
 
-            return {'title': title, 'text': text, 'error': None}
+        # Check for JavaScript-only pages (minimal real text extracted)
+        if not text or len(text.strip()) < 50:
+            return {
+                'title': title, 'text': '',
+                'error': (
+                    'Could not extract text from this URL. '
+                    'The page may require JavaScript or has too little readable content. '
+                    'Please paste the article text directly.'
+                )
+            }
 
+        return {'title': title, 'text': text, 'error': None}
+
+    except requests.exceptions.Timeout:
+        return {
+            'title': '', 'text': '',
+            'error': 'Request timed out after 10 seconds. The site may be slow or unreachable. Please paste the article text directly.'
+        }
+    except requests.exceptions.ConnectionError:
+        return {
+            'title': '', 'text': '',
+            'error': 'Could not connect to the URL. Please check the address and try again.'
+        }
+    except requests.exceptions.TooManyRedirects:
+        return {
+            'title': '', 'text': '',
+            'error': 'Too many redirects. The URL may be invalid.'
+        }
     except requests.RequestException as e:
-        return {'title': '', 'text': '', 'error': str(e)}
+        return {'title': '', 'text': '', 'error': f'Failed to fetch URL: {e}'}
     except Exception as e:
-        return {'title': '', 'text': '', 'error': str(e)}
+        return {'title': '', 'text': '', 'error': f'Unexpected error: {e}'}
 
 
 def validate_feed_url(url):

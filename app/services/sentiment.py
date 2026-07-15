@@ -21,6 +21,11 @@ _POSITIVE_WORDS = {
     'innovative': 2.0, 'breakthrough': 2.5, 'remarkable': 2.4, 'incredible': 2.6,
     'delighted': 2.5, 'pleased': 2.0, 'glad': 1.8, 'fortunate': 1.9,
     'thrive': 2.0, 'prosper': 2.1, 'achieve': 1.8, 'achievement': 2.2,
+    # News / editorial vocabulary
+    'growth': 1.5, 'gained': 1.6, 'confirmed': 1.2, 'approved': 1.8,
+    'raised': 1.3, 'recovered': 1.7, 'stable': 1.4, 'steady': 1.3,
+    'aimed': 1.2, 'curbing': 1.3, 'resolved': 1.6, 'agreed': 1.5,
+    'welcomed': 1.8, 'praised': 2.0, 'endorsed': 1.7, 'strengthened': 1.6,
 }
 
 _NEGATIVE_WORDS = {
@@ -42,6 +47,14 @@ _NEGATIVE_WORDS = {
     'poverty': -2.0, 'unemployment': -1.8, 'inequality': -1.5,
     'guilty': -2.5, 'crime': -2.3, 'criminal': -2.5, 'arrest': -1.8,
     'prison': -2.0, 'punishment': -1.8,
+    # Sensationalist / alarm vocabulary common in news
+    'shocking': -2.0, 'exposed': -1.8, 'furious': -2.5, 'outrage': -2.3,
+    'suppress': -2.0, 'suppressed': -2.0, 'alarming': -2.2, 'dire': -2.3,
+    'devastating': -2.8, 'catastrophe': -3.0, 'catastrophic': -3.0,
+    'coup': -2.5, 'stolen': -2.0, 'rigged': -2.3, 'hoax': -2.5,
+    'scam': -2.5, 'conspiracy': -2.0, 'banned': -1.8, 'censored': -2.0,
+    'condemned': -2.0, 'slammed': -1.8, 'blasted': -2.0, 'accused': -1.5,
+    'inflation': -1.5, 'deficit': -1.5, 'plunged': -2.0, 'crashed': -2.5,
 }
 
 # Booster words that intensify sentiment
