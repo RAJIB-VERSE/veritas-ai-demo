@@ -44,8 +44,8 @@ def search_and_verify(text):
             snippet = r.get('body', '').lower()
             url = r.get('href', '')
             
-            combined_text = title + " " + snippet
-            sources_used.append({'title': r.get('title'), 'url': url})
+            combined_text = title + " " + snippet + " " + url
+            sources_used.append({'title': r.get('title'), 'url': url, 'snippet': snippet})
             
             # If a trusted fact checking site explicitly calls it false
             is_trusted = any(domain in url for domain in TRUSTED_DOMAINS)
@@ -76,9 +76,21 @@ def search_and_verify(text):
                 'sources': sources_used[:3]
             }
         elif debunk_score == 0 and total_results >= 3:
-            # Lots of results, no debunks. Check if there's wikipedia or trusted news
-            trusted_count = sum(1 for src in sources_used if any(d in src['url'] for d in TRUSTED_DOMAINS + ['wikipedia.org', 'cnn.com', 'britannica.com']))
-            if trusted_count >= 1:
+            # Lots of results, no debunks. Check if there's wikipedia or trusted news THAT IS RELEVANT
+            query_words = set(re.findall(r'\b[a-zA-Z]{5,}\b', query.lower()))
+            
+            verified_sources = []
+            for src in sources_used:
+                is_trusted = any(d in src['url'] for d in TRUSTED_DOMAINS + ['wikipedia.org', 'cnn.com', 'britannica.com'])
+                if is_trusted:
+                    # Check relevance (must contain at least some key words from query)
+                    combined = (src['title'] + " " + src.get('snippet', '')).lower()
+                    matched = sum(1 for w in query_words if w in combined)
+                    
+                    if not query_words or (matched / len(query_words)) >= 0.3:
+                        verified_sources.append(src)
+                        
+            if len(verified_sources) >= 1:
                 return {
                     'status': 'verified',
                     'message': 'Live Web Search: Claim is supported by credible sources.',
