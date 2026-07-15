@@ -1,5 +1,5 @@
 import re
-from duckduckgo_search import DDGS
+from ddgs import DDGS
 
 # Fact checking domains or trusted sources
 TRUSTED_DOMAINS = [
