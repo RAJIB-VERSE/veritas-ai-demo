@@ -86,5 +86,56 @@ python ml/train_tfidf.py --data data/WELFake_Dataset.csv
 
 ---
 
+## ⚠️ Challenges & Bugs I Faced
+
+Building this project was far from smooth. Here are the real problems I ran into:
+
+### 🐛 Bug 1 — Every article was classified as REAL
+The heuristic classifier had a critical flaw: it passed all text through a `clean_text()` function that **lowercased everything before checking for ALL CAPS**. This meant the ALL CAPS detector was always blind. On top of that, the scoring threshold was wrong and the function returned `REAL` by default for almost anything. Every article — no matter how outrageous — came back "LIKELY REAL."
+
+### 🐛 Bug 2 — Confidence score always showed 0%
+The results detail page loaded analysis data from the database. Sentiment values were stored as `None`, and when the JavaScript tried to call `.toFixed(2)` on a `null` value, it threw a silent crash — breaking the **entire rendering function** and leaving every score at 0%.
+
+### 🐛 Bug 3 — Sentiment scores always 0%
+The sentiment lexicon was too narrow. Words like `shocking`, `exposed`, `furious`, `inflation`, `raised`, `confirmed` — extremely common in news — were missing entirely. The scorer matched zero words in most articles and returned blank scores.
+
+### 🐛 Bug 4 — Key Indicators section was always empty
+The `features` field from the classifier was never populated in heuristic mode. The frontend correctly hid the section when the array was empty — but the array was always empty because the classifier never recorded which signals it triggered.
+
+### 🐛 Bug 5 — URL scraping failed silently
+When a user submitted a URL, the scraper sometimes returned empty text (JS-heavy pages, 403 errors, timeouts) — and the app would classify that empty string as "REAL" with no error shown to the user.
+
+---
+
+## 🔧 How I Fixed Them
+
+| Bug | Root Cause | Fix Applied |
+|---|---|---|
+| Everything classified REAL | `clean_text()` lowercasing before caps detection | Rewrote `classifier.py` with 9 FAKE signal categories using original-case text |
+| Confidence always 0% | `None` DB values crashed JS renderer silently | Added null safety defaults (`0.0`) in `database.py` `to_dict()` |
+| Sentiment always 0% | Lexicon missing common news vocabulary | Expanded with ~45 news-specific words (`shocking`, `exposed`, `inflation`, etc.) |
+| Key Indicators empty | Classifier never logged triggered signals | Modified classifier to return `features` list of every triggered signal phrase |
+| URL scraping silent failure | No text length check, no HTTP error handling | Added 50-char minimum, specific 403/404/timeout messages, JS-page detection |
+
+---
+
+## 🌍 Real-World Impact
+
+Misinformation is one of the most serious challenges of our time. Studies show that:
+- False news spreads **6x faster** than true news on social media *(MIT, 2018)*
+- During elections and pandemics, misinformation directly influences public behavior and safety
+- Most people cannot reliably distinguish real from fake news without assistance
+
+**VeritasAI addresses this by:**
+
+- **Making AI fact-checking accessible to everyone** — no technical knowledge needed, just paste an article
+- **Being explainable** — the "Key Indicators" section shows exactly *why* an article was flagged, teaching users to spot patterns themselves
+- **Covering multiple angles** — sentiment, source credibility, and linguistic patterns together are more reliable than any single signal alone
+- **Working without expensive infrastructure** — the heuristic classifier works immediately, no GPU or trained model required, making it deployable in schools, newsrooms, and community platforms
+
+> This project shows that even a lightweight open-source system can meaningfully help identify misinformation patterns — and that building it honestly, including fixing real bugs, is part of the learning.
+
+---
+
 ## 📄 License
 MIT License
