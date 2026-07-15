@@ -1,8 +1,6 @@
 # VeritasAI: Fake News Detection and Analysis System
 
-<video src="https://github.com/RAJIB-VERSE/veritas-ai-demo/raw/main/assets/demo.mp4" controls="controls" style="max-width: 100%;">
-  Your browser does not support the video tag.
-</video>
+https://github.com/RAJIB-VERSE/veritas-ai-demo/raw/main/assets/demo.mp4
 
 VeritasAI is a comprehensive, full-stack application designed to combat misinformation. It uses Machine Learning (TF-IDF + Logistic Regression, or DistilBERT) to classify news articles as "REAL" or "FAKE," along with detailed sentiment analysis and source credibility checks.
 
