@@ -30,20 +30,49 @@
             <div id="articleTextContent" style="font-size: 0.95rem; color: var(--text-secondary); line-height: 1.8; max-height: 400px; overflow-y: auto; padding-right: var(--space-md);"></div>
         </div>
 
-        <!-- Verdict + Confidence -->
-        <div class="glass-card result-verdict mb-lg" id="detailVerdict">
-            <div class="verdict-badge" id="detailVerdictBadge">
-                <span class="verdict-icon" id="detailVerdictIcon"></span>
-                <span id="detailVerdictLabel"></span>
+        <!-- Major Verdicts -->
+        <div class="analysis-grid mb-lg" id="majorVerdicts" style="margin-top: 0; margin-bottom: var(--space-xl);">
+            <!-- Fact Check -->
+            <div class="glass-card result-verdict" id="detailVerdict" style="margin-bottom: 0; flex-direction: column; text-align: center;">
+                <h3 style="margin-bottom: var(--space-md); font-size: 1rem; color: var(--text-secondary); width: 100%; text-transform: uppercase; letter-spacing: 0.1em;">Fact Check</h3>
+                <div class="verdict-badge" id="detailVerdictBadge" style="margin-bottom: var(--space-md);">
+                    <span class="verdict-icon" id="detailVerdictIcon"></span>
+                    <span id="detailVerdictLabel"></span>
+                </div>
+                <div class="confidence-meter" style="width: 100%; margin: 0;">
+                    <div class="confidence-label">
+                        <span>Confidence</span>
+                        <span id="detailConfidenceValue">0%</span>
+                    </div>
+                    <div class="confidence-bar">
+                        <div class="confidence-fill" id="detailConfidenceFill" style="width: 0%"></div>
+                    </div>
+                </div>
             </div>
-            <div class="confidence-meter" style="flex: 1; max-width: 400px;">
-                <div class="confidence-label">
-                    <span>Confidence</span>
-                    <span id="detailConfidenceValue">0%</span>
+
+            <!-- Reliability -->
+            <div class="glass-card result-verdict" id="detailReliabilityCard" style="margin-bottom: 0; flex-direction: column; text-align: center;">
+                <h3 style="margin-bottom: var(--space-md); font-size: 1rem; color: var(--text-secondary); width: 100%; text-transform: uppercase; letter-spacing: 0.1em;">Reliability</h3>
+                <div class="verdict-badge" id="detailReliabilityBadge" style="margin-bottom: var(--space-md);">
+                    <span class="verdict-icon" id="detailReliabilityIcon"></span>
+                    <span id="detailReliabilityLabel"></span>
                 </div>
-                <div class="confidence-bar">
-                    <div class="confidence-fill" id="detailConfidenceFill" style="width: 0%"></div>
+                <div style="font-size: 0.85rem; color: var(--text-muted); width: 100%;">
+                    Based on source analysis
                 </div>
+            </div>
+        </div>
+
+        <!-- NEW: Live Web Verification -->
+        <div class="glass-card mb-lg" id="detailLiveFactCheckCard" style="display: none; padding: var(--space-md); border-left: 4px solid var(--accent-blue);">
+            <h3 style="margin-bottom: var(--space-sm); font-size: 1.1rem; display: flex; align-items: center; gap: 8px;">
+                <span class="icon">🌐</span> Live Web Verification
+            </h3>
+            <div id="detailLiveFactCheckStatus" style="font-size: 0.95rem; margin-bottom: var(--space-sm); font-weight: 500;">
+                <!-- Status text will go here -->
+            </div>
+            <div id="detailLiveFactCheckSources" class="feature-tags" style="margin-top: var(--space-sm);">
+                <!-- Sources will go here -->
             </div>
         </div>
 
@@ -135,7 +164,7 @@
                 const badge = document.getElementById('detailVerdictBadge');
                 badge.className = `verdict-badge ${isReal ? 'real' : 'fake'}`;
                 document.getElementById('detailVerdictIcon').textContent = isReal ? '✅' : '❌';
-                document.getElementById('detailVerdictLabel').textContent = isReal ? 'LIKELY REAL' : 'LIKELY FAKE';
+                document.getElementById('detailVerdictLabel').textContent = isReal ? 'LIKELY TRUE' : 'LIKELY FALSE';
 
                 const conf = Math.round(analysis.confidence * 100);
                 document.getElementById('detailConfidenceValue').textContent = `${conf}%`;
@@ -143,9 +172,66 @@
                 fill.style.width = `${conf}%`;
                 fill.className = `confidence-fill ${conf >= 70 ? 'high' : 'low'}`;
 
+                // Reliability Top Badge
+                const srcCredibility = analysis.source_credibility || 'UNKNOWN';
+                const relBadge = document.getElementById('detailReliabilityBadge');
+                const isReliable = (srcCredibility === 'HIGH' || srcCredibility === 'MEDIUM');
+                const isUnreliable = (srcCredibility === 'LOW');
+                
+                if (isReliable) {
+                    relBadge.className = 'verdict-badge real';
+                    relBadge.style = '';
+                    document.getElementById('detailReliabilityIcon').textContent = '✅';
+                    document.getElementById('detailReliabilityLabel').textContent = 'LIKELY REAL';
+                } else if (isUnreliable) {
+                    relBadge.className = 'verdict-badge fake';
+                    relBadge.style = '';
+                    document.getElementById('detailReliabilityIcon').textContent = '❌';
+                    document.getElementById('detailReliabilityLabel').textContent = 'LIKELY FALSE';
+                } else {
+                    relBadge.className = 'verdict-badge';
+                    relBadge.style.background = 'rgba(255, 255, 255, 0.05)';
+                    relBadge.style.borderColor = 'rgba(255, 255, 255, 0.1)';
+                    relBadge.style.color = 'var(--text-secondary)';
+                    document.getElementById('detailReliabilityIcon').textContent = '❓';
+                    document.getElementById('detailReliabilityLabel').textContent = 'UNKNOWN';
+                }
+
                 // Sentiment
                 const sent = analysis.sentiment;
                 document.getElementById('detailSentimentValue').textContent = sent.compound.toFixed(2);
+                
+                // NEW: Live Web Fact Check
+                const liveFactCheckCard = document.getElementById('detailLiveFactCheckCard');
+                if (analysis.fact_check && analysis.fact_check.status !== 'error') {
+                    liveFactCheckCard.style.display = 'block';
+                    const fcStatus = document.getElementById('detailLiveFactCheckStatus');
+                    fcStatus.textContent = analysis.fact_check.message;
+                    
+                    if (analysis.fact_check.status === 'debunked') {
+                        liveFactCheckCard.style.borderColor = 'var(--accent-red)';
+                        fcStatus.style.color = 'var(--accent-red)';
+                    } else if (analysis.fact_check.status === 'verified') {
+                        liveFactCheckCard.style.borderColor = 'var(--accent-green)';
+                        fcStatus.style.color = 'var(--accent-green)';
+                    } else {
+                        liveFactCheckCard.style.borderColor = 'var(--accent-amber)';
+                        fcStatus.style.color = 'var(--accent-amber)';
+                    }
+                    
+                    const fcSources = document.getElementById('detailLiveFactCheckSources');
+                    if (analysis.fact_check.sources && analysis.fact_check.sources.length > 0) {
+                        fcSources.innerHTML = analysis.fact_check.sources.map(s => 
+                            `<a href="${s.url}" target="_blank" class="feature-tag" style="background: rgba(255, 255, 255, 0.05); color: var(--text-secondary); text-decoration: none; border-color: rgba(255, 255, 255, 0.1);">
+                                ${s.title}
+                            </a>`
+                        ).join('');
+                    } else {
+                        fcSources.innerHTML = '';
+                    }
+                } else {
+                    liveFactCheckCard.style.display = 'none';
+                }
                 document.getElementById('detailSentimentValue').className = `sentiment-value ${sent.compound > 0.05 ? 'positive' : sent.compound < -0.05 ? 'negative' : 'neutral'}`;
                 document.getElementById('detailPosBar').style.width = `${(sent.positive * 100).toFixed(0)}%`;
                 document.getElementById('detailPosVal').textContent = `${(sent.positive * 100).toFixed(0)}%`;

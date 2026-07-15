@@ -60,8 +60,63 @@ def analyze():
     # Run sentiment analysis
     sentiment = analyze_sentiment(text)
 
-    # Run source analysis
-    source = analyze_source(text)
+    # Run source analysis (include provided URL so it can be evaluated)
+    text_for_source = text
+    if url:
+        text_for_source += f"\n{url}"
+    source = analyze_source(text_for_source)
+
+    # Apply penalty for unverified/unattributed claims
+    from app.services.classifier import ATTRIBUTION_PHRASES
+    text_lower = text.lower()
+    has_attribution = any(p in text_lower for p in ATTRIBUTION_PHRASES)
+    
+    is_unknown = source.get('credibility', 'UNKNOWN') in ['UNKNOWN', 'LOW']
+    is_short = source.get('suspicious_patterns', {}).get('very_short', False)
+    no_urls_cited = len(source.get('urls_found', [])) == 0
+
+    is_isolated_headline = is_short and no_urls_cited and not has_attribution
+    is_unverified_article = is_unknown and no_urls_cited and not has_attribution
+
+    if is_isolated_headline or is_unverified_article:
+        classification['label'] = 'FAKE'
+        classification['fake_prob'] = max(0.80, classification.get('fake_prob', 0.5) + 0.3)
+        classification['real_prob'] = 1.0 - classification['fake_prob']
+        classification['confidence'] = classification['fake_prob']
+        
+        msg = "Unverified Claim: Lacks sources, citations, or verifiable attribution"
+        if is_isolated_headline:
+            msg = "Isolated Headline: No article or source provided to verify the claim"
+            
+        if 'features' in classification and isinstance(classification['features'], list):
+            if msg not in classification['features']:
+                classification['features'].append(msg)
+        if 'top_features' in classification and isinstance(classification['top_features'], list):
+            if msg not in classification['top_features']:
+                classification['top_features'].append(msg)
+
+    # ---------------------------------------------------------
+    # NEW: Live Web Fact Checking
+    # ---------------------------------------------------------
+    from app.services.fact_checker import search_and_verify
+    fact_check = search_and_verify(text)
+    
+    if fact_check['status'] == 'debunked':
+        classification['label'] = 'FAKE'
+        classification['fake_prob'] = 0.95
+        classification['real_prob'] = 0.05
+        classification['confidence'] = 0.95
+        msg = "Fact Checked: Live web search found credible sources debunking this claim."
+        if 'features' in classification: classification['features'].append(msg)
+        if 'top_features' in classification: classification['top_features'].append(msg)
+    elif fact_check['status'] == 'verified':
+        classification['label'] = 'REAL'
+        classification['real_prob'] = 0.90
+        classification['fake_prob'] = 0.10
+        classification['confidence'] = 0.90
+        msg = "Fact Checked: Live web search found credible sources verifying this claim."
+        if 'features' in classification: classification['features'].append(msg)
+        if 'top_features' in classification: classification['top_features'].append(msg)
 
     # Store in database
     article = Article(
@@ -85,6 +140,7 @@ def analyze():
         top_features=json.dumps(classification.get('top_features', [])),
         suspicious_phrases=json.dumps(source.get('clickbait_phrases', [])),
         source_credibility=source.get('credibility', 'UNKNOWN'),
+        fact_check_result=json.dumps(fact_check) if fact_check else None,
     )
     db.session.add(analysis)
     db.session.commit()
@@ -95,6 +151,7 @@ def analyze():
         'classification': classification,
         'sentiment': sentiment,
         'source_analysis': source,
+        'fact_check': fact_check,
         'created_at': article.created_at.isoformat() if article.created_at else None,
     })
 

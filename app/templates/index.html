@@ -58,20 +58,49 @@
 
     <!-- Results Container (hidden until analysis) -->
     <section class="result-container hidden" id="resultContainer">
-        <!-- Verdict -->
-        <div class="glass-card result-verdict" id="verdictCard">
-            <div class="verdict-badge" id="verdictBadge">
-                <span class="verdict-icon" id="verdictIcon"></span>
-                <span id="verdictLabel"></span>
+        <!-- Major Verdicts -->
+        <div class="analysis-grid mb-lg" id="majorVerdicts" style="margin-top: 0; margin-bottom: var(--space-xl);">
+            <!-- Fact Check -->
+            <div class="glass-card result-verdict" id="verdictCard" style="margin-bottom: 0; flex-direction: column; text-align: center;">
+                <h3 style="margin-bottom: var(--space-md); font-size: 1rem; color: var(--text-secondary); width: 100%; text-transform: uppercase; letter-spacing: 0.1em;">Fact Check</h3>
+                <div class="verdict-badge" id="verdictBadge" style="margin-bottom: var(--space-md);">
+                    <span class="verdict-icon" id="verdictIcon"></span>
+                    <span id="verdictLabel"></span>
+                </div>
+                <div class="confidence-meter" style="width: 100%; margin: 0;">
+                    <div class="confidence-label">
+                        <span>Confidence</span>
+                        <span id="confidenceValue">0%</span>
+                    </div>
+                    <div class="confidence-bar">
+                        <div class="confidence-fill" id="confidenceFill" style="width: 0%"></div>
+                    </div>
+                </div>
             </div>
-            <div class="confidence-meter" style="flex: 1; max-width: 400px;">
-                <div class="confidence-label">
-                    <span>Confidence</span>
-                    <span id="confidenceValue">0%</span>
+
+            <!-- Reliability -->
+            <div class="glass-card result-verdict" id="reliabilityCard" style="margin-bottom: 0; flex-direction: column; text-align: center;">
+                <h3 style="margin-bottom: var(--space-md); font-size: 1rem; color: var(--text-secondary); width: 100%; text-transform: uppercase; letter-spacing: 0.1em;">Reliability</h3>
+                <div class="verdict-badge" id="reliabilityBadge" style="margin-bottom: var(--space-md);">
+                    <span class="verdict-icon" id="reliabilityIcon"></span>
+                    <span id="reliabilityLabel"></span>
                 </div>
-                <div class="confidence-bar">
-                    <div class="confidence-fill" id="confidenceFill" style="width: 0%"></div>
+                <div style="font-size: 0.85rem; color: var(--text-muted); width: 100%;">
+                    Based on source analysis
                 </div>
+            </div>
+        </div>
+
+        <!-- NEW: Live Web Verification -->
+        <div class="glass-card mb-lg" id="liveFactCheckCard" style="display: none; padding: var(--space-md); border-left: 4px solid var(--accent-blue);">
+            <h3 style="margin-bottom: var(--space-sm); font-size: 1.1rem; display: flex; align-items: center; gap: 8px;">
+                <span class="icon">🌐</span> Live Web Verification
+            </h3>
+            <div id="liveFactCheckStatus" style="font-size: 0.95rem; margin-bottom: var(--space-sm); font-weight: 500;">
+                <!-- Status text will go here -->
+            </div>
+            <div id="liveFactCheckSources" class="feature-tags" style="margin-top: var(--space-sm);">
+                <!-- Sources will go here -->
             </div>
         </div>
 

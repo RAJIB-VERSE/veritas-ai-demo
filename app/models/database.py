@@ -53,6 +53,9 @@ class Analysis(db.Model):
 
     # Source analysis
     source_credibility = db.Column(db.String(20), nullable=True)  # 'HIGH', 'MEDIUM', 'LOW', 'UNKNOWN'
+    
+    # Live web fact check
+    fact_check_result = db.Column(db.Text, nullable=True)
 
     analyzed_at = db.Column(db.DateTime, default=lambda: datetime.now(timezone.utc))
 
@@ -64,6 +67,7 @@ class Analysis(db.Model):
             'prediction': self.prediction,
             'confidence': self.confidence or 0.0,
             'model_used': self.model_used,
+            'fact_check': json.loads(self.fact_check_result) if self.fact_check_result else None,
             'sentiment': {
                 'compound': self.sentiment_compound if self.sentiment_compound is not None else 0.0,
                 'positive': self.sentiment_positive if self.sentiment_positive is not None else 0.0,
