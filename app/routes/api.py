@@ -85,8 +85,8 @@ def analyze():
     # ---------------------------------------------------------
     # Step 1: AI-Generated Content Detection (HIGHEST PRIORITY)
     # ---------------------------------------------------------
-    from app.services.ai_detector import detect_ai_content
     try:
+        from app.services.ai_detector import detect_ai_content
         ai_detection = detect_ai_content(text, verify_entities=True)
     except Exception as e:
         print(f"[AI Detection Error] {e}")
@@ -101,8 +101,8 @@ def analyze():
     # ---------------------------------------------------------
     # Step 2: Live Web Fact Checking
     # ---------------------------------------------------------
-    from app.services.fact_checker import search_and_verify
     try:
+        from app.services.fact_checker import search_and_verify
         fact_check = search_and_verify(text)
     except Exception as e:
         print(f"[Fact Check Error] {e}")

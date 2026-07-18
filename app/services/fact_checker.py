@@ -1,5 +1,8 @@
 import re
-from ddgs import DDGS
+try:
+    from ddgs import DDGS
+except ImportError:
+    DDGS = None
 from app.services.text_utils import normalize_text, normalize_for_heuristics
 
 # Fact checking domains or trusted sources
@@ -293,6 +296,9 @@ def search_and_verify(text):
 
     if not query:
         return {'status': 'error', 'message': 'Query too short'}
+
+    if DDGS is None:
+        return {'status': 'error', 'message': 'Web search library not available'}
 
     try:
         with DDGS() as ddgs:

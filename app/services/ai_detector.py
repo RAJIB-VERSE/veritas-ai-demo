@@ -20,7 +20,10 @@ reliable indicator of AI authorship.
 import re
 import math
 import statistics
-from ddgs import DDGS
+try:
+    from ddgs import DDGS
+except ImportError:
+    DDGS = None
 from app.services.text_utils import normalize_text, normalize_for_heuristics
 
 # ---------------------------------------------------------------------------
@@ -204,6 +207,8 @@ def _verify_entity_exists(entity):
     Search the web for an entity. Returns True if it appears to be real
     (i.e., has meaningful search results), False if it seems fictional.
     """
+    if DDGS is None:
+        return True  # Can't verify, assume real to avoid false positives
     try:
         with DDGS() as ddgs:
             results = list(ddgs.text(f'"{entity}"', max_results=3))
