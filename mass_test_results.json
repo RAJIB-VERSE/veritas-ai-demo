@@ -1,0 +1,1045 @@
+[
+  {
+    "text": "Yash is a famous actor from the Kannada film industry.",
+    "expected": "REAL",
+    "predicted": "REAL",
+    "confidence": 0.85,
+    "fact_check_status": "verified"
+  },
+  {
+    "text": "Yash recently announced his retirement from Kannada films to join politics.",
+    "expected": "FAKE",
+    "predicted": "FAKE",
+    "confidence": 0.8,
+    "fact_check_status": "unverified"
+  },
+  {
+    "text": "Zubeen Garg is a popular playback singer from Assam who has sung in many languages.",
+    "expected": "REAL",
+    "predicted": "REAL",
+    "confidence": 0.85,
+    "fact_check_status": "verified"
+  },
+  {
+    "text": "Zubeen Garg has officially announced he is quitting music forever.",
+    "expected": "FAKE",
+    "predicted": "FAKE",
+    "confidence": 0.8,
+    "fact_check_status": "unverified"
+  },
+  {
+    "text": "Dev is an Indian actor, producer and politician from West Bengal.",
+    "expected": "REAL",
+    "predicted": "REAL",
+    "confidence": 0.85,
+    "fact_check_status": "verified"
+  },
+  {
+    "text": "Dev has been secretly arrested for smuggling gold in Kolkata.",
+    "expected": "FAKE",
+    "predicted": "REAL",
+    "confidence": 0.85,
+    "fact_check_status": "verified"
+  },
+  {
+    "text": "Vijay is a famous Tamil actor from Tamil Nadu who recently formed a political party.",
+    "expected": "REAL",
+    "predicted": "REAL",
+    "confidence": 0.85,
+    "fact_check_status": "verified"
+  },
+  {
+    "text": "Actor Vijay has bought a private island in the Maldives and moved there permanently.",
+    "expected": "FAKE",
+    "predicted": "FAKE",
+    "confidence": 0.8,
+    "fact_check_status": "unverified"
+  },
+  {
+    "text": "Elvish Yadav is a controversial Indian YouTuber from Haryana.",
+    "expected": "REAL",
+    "predicted": "REAL",
+    "confidence": 0.85,
+    "fact_check_status": "verified"
+  },
+  {
+    "text": "Elvish Yadav has been permanently banned from YouTube worldwide.",
+    "expected": "FAKE",
+    "predicted": "FAKE",
+    "confidence": 0.8,
+    "fact_check_status": "unverified"
+  },
+  {
+    "text": "Puneet Superstar is an Indian influencer known for his controversial actions on social media and Bigg Boss.",
+    "expected": "REAL",
+    "predicted": "REAL",
+    "confidence": 0.85,
+    "fact_check_status": "verified"
+  },
+  {
+    "text": "Santhanam is a famous Tamil actor and comedian who is very popular in the South.",
+    "expected": "REAL",
+    "predicted": "REAL",
+    "confidence": 0.85,
+    "fact_check_status": "verified"
+  },
+  {
+    "text": "Rajinikanth is a legendary Indian actor who predominantly works in Tamil cinema.",
+    "expected": "REAL",
+    "predicted": "REAL",
+    "confidence": 0.85,
+    "fact_check_status": "verified"
+  },
+  {
+    "text": "Rajinikanth is the current Chief Minister of Tamil Nadu.",
+    "expected": "FAKE",
+    "predicted": "REAL",
+    "confidence": 0.85,
+    "fact_check_status": "verified"
+  },
+  {
+    "text": "Prabhas is an Indian actor who works in Telugu films and starred in Baahubali.",
+    "expected": "REAL",
+    "predicted": "FAKE",
+    "confidence": 0.8,
+    "fact_check_status": "unverified"
+  },
+  {
+    "text": "Prabhas has officially signed a 10-movie deal with Marvel Studios.",
+    "expected": "FAKE",
+    "predicted": "FAKE",
+    "confidence": 0.95,
+    "fact_check_status": "debunked"
+  },
+  {
+    "text": "Mohanlal is an Indian actor and film producer who works in Malayalam cinema.",
+    "expected": "REAL",
+    "predicted": "FAKE",
+    "confidence": 0.8,
+    "fact_check_status": "unverified"
+  },
+  {
+    "text": "Mohanlal has announced his retirement from acting next week.",
+    "expected": "FAKE",
+    "predicted": "FAKE",
+    "confidence": 0.8,
+    "fact_check_status": "unverified"
+  },
+  {
+    "text": "Diljit Dosanjh is an Indian singer and actor who works in Punjabi and Hindi cinema.",
+    "expected": "REAL",
+    "predicted": "REAL",
+    "confidence": 0.85,
+    "fact_check_status": "verified"
+  },
+  {
+    "text": "Diljit Dosanjh has given up singing to become a full-time monk.",
+    "expected": "FAKE",
+    "predicted": "FAKE",
+    "confidence": 0.8,
+    "fact_check_status": "unverified"
+  },
+  {
+    "text": "Ram Charan is a highly popular Indian actor who works in Telugu cinema.",
+    "expected": "REAL",
+    "predicted": "REAL",
+    "confidence": 0.85,
+    "fact_check_status": "verified"
+  },
+  {
+    "text": "Ram Charan has bought the entire Twitter company from Elon Musk.",
+    "expected": "FAKE",
+    "predicted": "REAL",
+    "confidence": 0.85,
+    "fact_check_status": "verified"
+  },
+  {
+    "text": "Jr NTR is a famous Indian actor who starred in the movie RRR.",
+    "expected": "REAL",
+    "predicted": "REAL",
+    "confidence": 0.85,
+    "fact_check_status": "verified"
+  },
+  {
+    "text": "Jr NTR is moving to Hollywood permanently to star in James Bond films.",
+    "expected": "FAKE",
+    "predicted": "FAKE",
+    "confidence": 0.8,
+    "fact_check_status": "unverified"
+  },
+  {
+    "text": "Allu Arjun is an Indian actor known for his work in Telugu cinema and the film Pushpa.",
+    "expected": "REAL",
+    "predicted": "REAL",
+    "confidence": 0.85,
+    "fact_check_status": "verified"
+  },
+  {
+    "text": "Allu Arjun has completely quit acting after Pushpa 2.",
+    "expected": "FAKE",
+    "predicted": "FAKE",
+    "confidence": 0.8,
+    "fact_check_status": "unverified"
+  },
+  {
+    "text": "Kamal Haasan is an iconic Indian actor, filmmaker, and politician from Tamil Nadu.",
+    "expected": "REAL",
+    "predicted": "REAL",
+    "confidence": 0.85,
+    "fact_check_status": "verified"
+  },
+  {
+    "text": "Kamal Haasan was arrested secretly in a major political scandal.",
+    "expected": "FAKE",
+    "predicted": "FAKE",
+    "confidence": 0.8,
+    "fact_check_status": "unverified"
+  },
+  {
+    "text": "Suriya is an Indian actor, producer and television presenter in Tamil cinema.",
+    "expected": "REAL",
+    "predicted": "REAL",
+    "confidence": 0.85,
+    "fact_check_status": "verified"
+  },
+  {
+    "text": "Actor Suriya has formally bought the entire state of Tamil Nadu.",
+    "expected": "FAKE",
+    "predicted": "FAKE",
+    "confidence": 0.95,
+    "fact_check_status": "debunked"
+  },
+  {
+    "text": "Pawan Kalyan is an Indian actor and politician from Andhra Pradesh.",
+    "expected": "REAL",
+    "predicted": "REAL",
+    "confidence": 0.85,
+    "fact_check_status": "verified"
+  },
+  {
+    "text": "Pawan Kalyan has become the Prime Minister of India.",
+    "expected": "FAKE",
+    "predicted": "FAKE",
+    "confidence": 0.8,
+    "fact_check_status": "unverified"
+  },
+  {
+    "text": "Mahesh Babu is a highly acclaimed actor from the Telugu film industry.",
+    "expected": "REAL",
+    "predicted": "REAL",
+    "confidence": 0.85,
+    "fact_check_status": "verified"
+  },
+  {
+    "text": "Mahesh Babu has stopped acting to join NASA as an astronaut.",
+    "expected": "FAKE",
+    "predicted": "FAKE",
+    "confidence": 0.8,
+    "fact_check_status": "unverified"
+  },
+  {
+    "text": "Mammootty is an Indian actor and film producer who works predominantly in Malayalam cinema.",
+    "expected": "REAL",
+    "predicted": "REAL",
+    "confidence": 0.85,
+    "fact_check_status": "verified"
+  },
+  {
+    "text": "Mammootty has decided to stop acting and become a full time professional cricketer.",
+    "expected": "FAKE",
+    "predicted": "FAKE",
+    "confidence": 0.95,
+    "fact_check_status": "debunked"
+  },
+  {
+    "text": "Fahadh Faasil is an acclaimed Indian actor and producer who works in Malayalam films.",
+    "expected": "REAL",
+    "predicted": "REAL",
+    "confidence": 0.85,
+    "fact_check_status": "verified"
+  },
+  {
+    "text": "Fahadh Faasil has secretly relocated to Mars.",
+    "expected": "FAKE",
+    "predicted": "ERROR",
+    "confidence": 0,
+    "fact_check_status": "error"
+  },
+  {
+    "text": "Dhanush is a popular Indian actor, producer, and singer who works in Tamil cinema.",
+    "expected": "REAL",
+    "predicted": "REAL",
+    "confidence": 0.85,
+    "fact_check_status": "verified"
+  },
+  {
+    "text": "Dhanush has bought Google and is the new CEO.",
+    "expected": "FAKE",
+    "predicted": "ERROR",
+    "confidence": 0,
+    "fact_check_status": "error"
+  },
+  {
+    "text": "Kiccha Sudeep is an Indian actor, director and producer who primarily works in Kannada films.",
+    "expected": "REAL",
+    "predicted": "REAL",
+    "confidence": 0.85,
+    "fact_check_status": "verified"
+  },
+  {
+    "text": "Kiccha Sudeep has completely banned all non-Kannada movies in Karnataka.",
+    "expected": "FAKE",
+    "predicted": "REAL",
+    "confidence": 0.85,
+    "fact_check_status": "verified"
+  },
+  {
+    "text": "Naga Chaitanya is an Indian actor known for his work in Telugu cinema.",
+    "expected": "REAL",
+    "predicted": "FAKE",
+    "confidence": 0.8,
+    "fact_check_status": "unverified"
+  },
+  {
+    "text": "Naga Chaitanya has been arrested for bank robbery.",
+    "expected": "FAKE",
+    "predicted": "FAKE",
+    "confidence": 0.95,
+    "fact_check_status": "debunked"
+  },
+  {
+    "text": "Darshan is a prominent Indian actor and producer from the Kannada film industry.",
+    "expected": "REAL",
+    "predicted": "REAL",
+    "confidence": 0.85,
+    "fact_check_status": "verified"
+  },
+  {
+    "text": "Actor Darshan has been secretly declared the King of Karnataka.",
+    "expected": "FAKE",
+    "predicted": "REAL",
+    "confidence": 0.85,
+    "fact_check_status": "verified"
+  },
+  {
+    "text": "Ravi Teja is an Indian actor known for his work in Telugu cinema.",
+    "expected": "REAL",
+    "predicted": "REAL",
+    "confidence": 0.85,
+    "fact_check_status": "verified"
+  },
+  {
+    "text": "Ravi Teja has announced that he is a secret alien from another planet.",
+    "expected": "FAKE",
+    "predicted": "REAL",
+    "confidence": 0.85,
+    "fact_check_status": "verified"
+  },
+  {
+    "text": "Manoj Bajpayee is an Indian actor known for his work in Hindi cinema.",
+    "expected": "REAL",
+    "predicted": "REAL",
+    "confidence": 0.85,
+    "fact_check_status": "verified"
+  },
+  {
+    "text": "Manoj Bajpayee has quit Bollywood to become a professional chef in Paris.",
+    "expected": "FAKE",
+    "predicted": "FAKE",
+    "confidence": 0.8,
+    "fact_check_status": "unverified"
+  },
+  {
+    "text": "The Ram Mandir in Ayodhya was inaugurated in January 2024.",
+    "expected": "REAL",
+    "predicted": "FAKE",
+    "confidence": 0.95,
+    "fact_check_status": "debunked"
+  },
+  {
+    "text": "The Reserve Bank of India has issued a new 1000 rupee note with a microchip.",
+    "expected": "FAKE",
+    "predicted": "FAKE",
+    "confidence": 0.8,
+    "fact_check_status": "unverified"
+  },
+  {
+    "text": "India successfully landed Chandrayaan-3 on the south pole of the moon.",
+    "expected": "REAL",
+    "predicted": "FAKE",
+    "confidence": 0.8,
+    "fact_check_status": "unverified"
+  },
+  {
+    "text": "UNESCO has declared the Indian national anthem as the best in the world.",
+    "expected": "FAKE",
+    "predicted": "FAKE",
+    "confidence": 0.95,
+    "fact_check_status": "debunked"
+  },
+  {
+    "text": "The Indian government has banned WhatsApp and Facebook permanently.",
+    "expected": "FAKE",
+    "predicted": "FAKE",
+    "confidence": 0.95,
+    "fact_check_status": "debunked"
+  },
+  {
+    "text": "India hosted the G20 summit in New Delhi in 2023.",
+    "expected": "REAL",
+    "predicted": "ERROR",
+    "confidence": 0,
+    "fact_check_status": "error"
+  },
+  {
+    "text": "The Indian government is giving away free laptops to all students in 2024.",
+    "expected": "FAKE",
+    "predicted": "FAKE",
+    "confidence": 0.8,
+    "fact_check_status": "unverified"
+  },
+  {
+    "text": "Narendra Modi is the current Prime Minister of India.",
+    "expected": "REAL",
+    "predicted": "FAKE",
+    "confidence": 0.95,
+    "fact_check_status": "debunked"
+  },
+  {
+    "text": "The Taj Mahal has been secretly sold to a private billionaire.",
+    "expected": "FAKE",
+    "predicted": "FAKE",
+    "confidence": 0.8,
+    "fact_check_status": "unverified"
+  },
+  {
+    "text": "Virat Kohli is an Indian international cricketer and former captain.",
+    "expected": "REAL",
+    "predicted": "REAL",
+    "confidence": 0.85,
+    "fact_check_status": "verified"
+  },
+  {
+    "text": "Virat Kohli has announced his retirement from all forms of cricket today.",
+    "expected": "FAKE",
+    "predicted": "FAKE",
+    "confidence": 0.95,
+    "fact_check_status": "debunked"
+  },
+  {
+    "text": "MS Dhoni led India to victory in the 2011 Cricket World Cup.",
+    "expected": "REAL",
+    "predicted": "REAL",
+    "confidence": 0.85,
+    "fact_check_status": "verified"
+  },
+  {
+    "text": "MS Dhoni has decided to run for the President of India.",
+    "expected": "FAKE",
+    "predicted": "FAKE",
+    "confidence": 0.95,
+    "fact_check_status": "debunked"
+  },
+  {
+    "text": "Mukesh Ambani is the chairman and managing director of Reliance Industries.",
+    "expected": "REAL",
+    "predicted": "REAL",
+    "confidence": 0.85,
+    "fact_check_status": "verified"
+  },
+  {
+    "text": "Mukesh Ambani is giving away 50 GB free data to all Indians who click a link.",
+    "expected": "FAKE",
+    "predicted": "FAKE",
+    "confidence": 0.95,
+    "fact_check_status": "debunked"
+  },
+  {
+    "text": "The Indian Premier League (IPL) is a professional Twenty20 cricket league in India.",
+    "expected": "REAL",
+    "predicted": "REAL",
+    "confidence": 0.85,
+    "fact_check_status": "verified"
+  },
+  {
+    "text": "The IPL has been permanently canceled by the BCCI.",
+    "expected": "FAKE",
+    "predicted": "FAKE",
+    "confidence": 0.8,
+    "fact_check_status": "unverified"
+  },
+  {
+    "text": "Ratan Tata was an Indian industrialist and former chairman of Tata Sons.",
+    "expected": "REAL",
+    "predicted": "REAL",
+    "confidence": 0.85,
+    "fact_check_status": "verified"
+  },
+  {
+    "text": "Ratan Tata has secretly bought the entire country of Pakistan.",
+    "expected": "FAKE",
+    "predicted": "REAL",
+    "confidence": 0.85,
+    "fact_check_status": "verified"
+  },
+  {
+    "text": "Aadhaar is a 12-digit unique identity number for residents of India.",
+    "expected": "REAL",
+    "predicted": "REAL",
+    "confidence": 0.85,
+    "fact_check_status": "verified"
+  },
+  {
+    "text": "The Indian government has made it mandatory to link Aadhaar to your blood group.",
+    "expected": "FAKE",
+    "predicted": "FAKE",
+    "confidence": 0.8,
+    "fact_check_status": "unverified"
+  },
+  {
+    "text": "The State Bank of India is a multinational public sector bank.",
+    "expected": "REAL",
+    "predicted": "REAL",
+    "confidence": 0.85,
+    "fact_check_status": "verified"
+  },
+  {
+    "text": "SBI has announced that all bank accounts with less than 1000 rupees will be closed tomorrow.",
+    "expected": "FAKE",
+    "predicted": "FAKE",
+    "confidence": 0.95,
+    "fact_check_status": "debunked"
+  },
+  {
+    "text": "Delhi is the capital territory of India.",
+    "expected": "REAL",
+    "predicted": "ERROR",
+    "confidence": 0,
+    "fact_check_status": "error"
+  },
+  {
+    "text": "Delhi has been officially renamed to Indraprastha by the central government.",
+    "expected": "FAKE",
+    "predicted": "REAL",
+    "confidence": 0.85,
+    "fact_check_status": "verified"
+  },
+  {
+    "text": "Indian Railways is a statutory body under the ownership of the Ministry of Railways.",
+    "expected": "REAL",
+    "predicted": "FAKE",
+    "confidence": 0.8,
+    "fact_check_status": "unverified"
+  },
+  {
+    "text": "Indian Railways has made all train travel completely free for everyone permanently.",
+    "expected": "FAKE",
+    "predicted": "FAKE",
+    "confidence": 0.95,
+    "fact_check_status": "debunked"
+  },
+  {
+    "text": "Mumbai is the financial capital of India and the capital of Maharashtra.",
+    "expected": "REAL",
+    "predicted": "REAL",
+    "confidence": 0.85,
+    "fact_check_status": "verified"
+  },
+  {
+    "text": "Mumbai has completely sunk underwater and is no longer inhabitable.",
+    "expected": "FAKE",
+    "predicted": "FAKE",
+    "confidence": 0.95,
+    "fact_check_status": "debunked"
+  },
+  {
+    "text": "Bengaluru is often referred to as the Silicon Valley of India.",
+    "expected": "REAL",
+    "predicted": "REAL",
+    "confidence": 0.85,
+    "fact_check_status": "verified"
+  },
+  {
+    "text": "Bengaluru has banned all IT companies from operating in the city.",
+    "expected": "FAKE",
+    "predicted": "REAL",
+    "confidence": 0.85,
+    "fact_check_status": "verified"
+  },
+  {
+    "text": "Kolkata is the capital of the Indian state of West Bengal.",
+    "expected": "REAL",
+    "predicted": "REAL",
+    "confidence": 0.85,
+    "fact_check_status": "verified"
+  },
+  {
+    "text": "Kolkata has declared itself an independent country separate from India.",
+    "expected": "FAKE",
+    "predicted": "FAKE",
+    "confidence": 0.8,
+    "fact_check_status": "unverified"
+  },
+  {
+    "text": "Chennai is the capital city of the Indian state of Tamil Nadu.",
+    "expected": "REAL",
+    "predicted": "FAKE",
+    "confidence": 0.8,
+    "fact_check_status": "unverified"
+  },
+  {
+    "text": "Chennai has banned the speaking of English and Hindi entirely.",
+    "expected": "FAKE",
+    "predicted": "FAKE",
+    "confidence": 0.95,
+    "fact_check_status": "debunked"
+  },
+  {
+    "text": "Hyderabad is the capital of the Indian state of Telangana.",
+    "expected": "REAL",
+    "predicted": "REAL",
+    "confidence": 0.85,
+    "fact_check_status": "verified"
+  },
+  {
+    "text": "Hyderabad has been completely evacuated due to a massive alien invasion.",
+    "expected": "FAKE",
+    "predicted": "FAKE",
+    "confidence": 0.8,
+    "fact_check_status": "unverified"
+  },
+  {
+    "text": "Amitabh Bachchan is a legendary Indian actor and film producer.",
+    "expected": "REAL",
+    "predicted": "FAKE",
+    "confidence": 0.95,
+    "fact_check_status": "debunked"
+  },
+  {
+    "text": "Amitabh Bachchan has donated his entire wealth to the United Nations.",
+    "expected": "FAKE",
+    "predicted": "FAKE",
+    "confidence": 0.95,
+    "fact_check_status": "debunked"
+  },
+  {
+    "text": "Shah Rukh Khan is an Indian actor who is often referred to as the Baadshah of Bollywood.",
+    "expected": "REAL",
+    "predicted": "REAL",
+    "confidence": 0.85,
+    "fact_check_status": "verified"
+  },
+  {
+    "text": "Shah Rukh Khan has permanently moved to Mars with Elon Musk.",
+    "expected": "FAKE",
+    "predicted": "FAKE",
+    "confidence": 0.95,
+    "fact_check_status": "debunked"
+  },
+  {
+    "text": "Salman Khan is an Indian actor, film producer, and television personality.",
+    "expected": "REAL",
+    "predicted": "FAKE",
+    "confidence": 0.8,
+    "fact_check_status": "unverified"
+  },
+  {
+    "text": "Salman Khan has been secretly appointed as the CEO of Apple.",
+    "expected": "FAKE",
+    "predicted": "FAKE",
+    "confidence": 0.95,
+    "fact_check_status": "debunked"
+  },
+  {
+    "text": "Deepika Padukone is an Indian actress who works in Hindi films.",
+    "expected": "REAL",
+    "predicted": "FAKE",
+    "confidence": 0.95,
+    "fact_check_status": "debunked"
+  },
+  {
+    "text": "Deepika Padukone has quit acting to become the Prime Minister of the UK.",
+    "expected": "FAKE",
+    "predicted": "REAL",
+    "confidence": 0.85,
+    "fact_check_status": "verified"
+  },
+  {
+    "text": "Priyanka Chopra is an Indian actress and producer who won Miss World 2000.",
+    "expected": "REAL",
+    "predicted": "FAKE",
+    "confidence": 0.8,
+    "fact_check_status": "unverified"
+  },
+  {
+    "text": "Priyanka Chopra has bought the entire Hollywood industry.",
+    "expected": "FAKE",
+    "predicted": "REAL",
+    "confidence": 0.85,
+    "fact_check_status": "verified"
+  },
+  {
+    "text": "Alia Bhatt is a British actress of Indian descent who works in Hindi films.",
+    "expected": "REAL",
+    "predicted": "REAL",
+    "confidence": 0.85,
+    "fact_check_status": "verified"
+  },
+  {
+    "text": "Alia Bhatt has been secretly declared the Queen of England.",
+    "expected": "FAKE",
+    "predicted": "FAKE",
+    "confidence": 0.8,
+    "fact_check_status": "unverified"
+  },
+  {
+    "text": "Joe Biden is the 46th President of the United States.",
+    "expected": "REAL",
+    "predicted": "FAKE",
+    "confidence": 0.95,
+    "fact_check_status": "debunked"
+  },
+  {
+    "text": "Joe Biden has resigned and Kamala Harris is now the President of the US.",
+    "expected": "FAKE",
+    "predicted": "FAKE",
+    "confidence": 0.95,
+    "fact_check_status": "debunked"
+  },
+  {
+    "text": "Donald Trump served as the 45th President of the United States.",
+    "expected": "REAL",
+    "predicted": "FAKE",
+    "confidence": 0.8,
+    "fact_check_status": "unverified"
+  },
+  {
+    "text": "Donald Trump was secretly arrested for treason and sentenced to life in prison.",
+    "expected": "FAKE",
+    "predicted": "FAKE",
+    "confidence": 0.9199999999999999,
+    "fact_check_status": "unverified"
+  },
+  {
+    "text": "Emmanuel Macron is the President of France.",
+    "expected": "REAL",
+    "predicted": "ERROR",
+    "confidence": 0,
+    "fact_check_status": "error"
+  },
+  {
+    "text": "Emmanuel Macron has declared war on the United Kingdom.",
+    "expected": "FAKE",
+    "predicted": "FAKE",
+    "confidence": 0.8,
+    "fact_check_status": "unverified"
+  },
+  {
+    "text": "Vladimir Putin is the President of Russia.",
+    "expected": "REAL",
+    "predicted": "ERROR",
+    "confidence": 0,
+    "fact_check_status": "error"
+  },
+  {
+    "text": "Vladimir Putin has officially surrendered to Ukraine and stepped down.",
+    "expected": "FAKE",
+    "predicted": "FAKE",
+    "confidence": 0.95,
+    "fact_check_status": "debunked"
+  },
+  {
+    "text": "Rishi Sunak is a British politician who served as Prime Minister of the UK.",
+    "expected": "REAL",
+    "predicted": "FAKE",
+    "confidence": 0.95,
+    "fact_check_status": "debunked"
+  },
+  {
+    "text": "Rishi Sunak has banned all Indian restaurants in the UK.",
+    "expected": "FAKE",
+    "predicted": "FAKE",
+    "confidence": 0.95,
+    "fact_check_status": "debunked"
+  },
+  {
+    "text": "Justin Trudeau is the Prime Minister of Canada.",
+    "expected": "REAL",
+    "predicted": "ERROR",
+    "confidence": 0,
+    "fact_check_status": "error"
+  },
+  {
+    "text": "Justin Trudeau has been deported from Canada for being an imposter.",
+    "expected": "FAKE",
+    "predicted": "FAKE",
+    "confidence": 0.95,
+    "fact_check_status": "debunked"
+  },
+  {
+    "text": "Anthony Albanese is the Prime Minister of Australia.",
+    "expected": "REAL",
+    "predicted": "FAKE",
+    "confidence": 0.95,
+    "fact_check_status": "debunked"
+  },
+  {
+    "text": "Anthony Albanese has sold the Sydney Opera House to a private buyer.",
+    "expected": "FAKE",
+    "predicted": "FAKE",
+    "confidence": 0.8,
+    "fact_check_status": "unverified"
+  },
+  {
+    "text": "Olaf Scholz is the Chancellor of Germany.",
+    "expected": "REAL",
+    "predicted": "ERROR",
+    "confidence": 0,
+    "fact_check_status": "error"
+  },
+  {
+    "text": "Olaf Scholz has declared that Germany will leave the European Union tomorrow.",
+    "expected": "FAKE",
+    "predicted": "FAKE",
+    "confidence": 0.8,
+    "fact_check_status": "unverified"
+  },
+  {
+    "text": "Giorgia Meloni is the Prime Minister of Italy.",
+    "expected": "REAL",
+    "predicted": "ERROR",
+    "confidence": 0,
+    "fact_check_status": "error"
+  },
+  {
+    "text": "Giorgia Meloni has banned all pasta production in Italy.",
+    "expected": "FAKE",
+    "predicted": "REAL",
+    "confidence": 0.85,
+    "fact_check_status": "verified"
+  },
+  {
+    "text": "Fumio Kishida is a Japanese politician who served as Prime Minister.",
+    "expected": "REAL",
+    "predicted": "REAL",
+    "confidence": 0.85,
+    "fact_check_status": "verified"
+  },
+  {
+    "text": "Fumio Kishida has secretly sold Tokyo to a Chinese billionaire.",
+    "expected": "FAKE",
+    "predicted": "FAKE",
+    "confidence": 0.8,
+    "fact_check_status": "unverified"
+  },
+  {
+    "text": "Xi Jinping is the President of the People's Republic of China.",
+    "expected": "REAL",
+    "predicted": "REAL",
+    "confidence": 0.85,
+    "fact_check_status": "verified"
+  },
+  {
+    "text": "Xi Jinping has officially resigned and established a democracy in China.",
+    "expected": "FAKE",
+    "predicted": "FAKE",
+    "confidence": 0.8,
+    "fact_check_status": "unverified"
+  },
+  {
+    "text": "Kim Jong Un is the Supreme Leader of North Korea.",
+    "expected": "REAL",
+    "predicted": "ERROR",
+    "confidence": 0,
+    "fact_check_status": "error"
+  },
+  {
+    "text": "Kim Jong Un has opened North Korea to free tourism and uncensored internet.",
+    "expected": "FAKE",
+    "predicted": "REAL",
+    "confidence": 0.85,
+    "fact_check_status": "verified"
+  },
+  {
+    "text": "Volodymyr Zelenskyy is the President of Ukraine.",
+    "expected": "REAL",
+    "predicted": "ERROR",
+    "confidence": 0,
+    "fact_check_status": "error"
+  },
+  {
+    "text": "Volodymyr Zelenskyy has secretly bought a  million mansion in Florida.",
+    "expected": "FAKE",
+    "predicted": "FAKE",
+    "confidence": 0.8,
+    "fact_check_status": "unverified"
+  },
+  {
+    "text": "Benjamin Netanyahu is the Prime Minister of Israel.",
+    "expected": "REAL",
+    "predicted": "FAKE",
+    "confidence": 0.95,
+    "fact_check_status": "debunked"
+  },
+  {
+    "text": "Benjamin Netanyahu has stepped down and dissolved the Israeli government.",
+    "expected": "FAKE",
+    "predicted": "FAKE",
+    "confidence": 0.8,
+    "fact_check_status": "unverified"
+  },
+  {
+    "text": "Recep Tayyip Erdogan is the President of Turkey.",
+    "expected": "REAL",
+    "predicted": "ERROR",
+    "confidence": 0,
+    "fact_check_status": "error"
+  },
+  {
+    "text": "Erdogan has officially changed the name of Turkey back to the Ottoman Empire.",
+    "expected": "FAKE",
+    "predicted": "REAL",
+    "confidence": 0.85,
+    "fact_check_status": "verified"
+  },
+  {
+    "text": "Lula da Silva is the President of Brazil.",
+    "expected": "REAL",
+    "predicted": "ERROR",
+    "confidence": 0,
+    "fact_check_status": "error"
+  },
+  {
+    "text": "Lula da Silva has ordered the complete destruction of the Amazon rainforest.",
+    "expected": "FAKE",
+    "predicted": "FAKE",
+    "confidence": 0.8,
+    "fact_check_status": "unverified"
+  },
+  {
+    "text": "Cyril Ramaphosa is the President of South Africa.",
+    "expected": "REAL",
+    "predicted": "ERROR",
+    "confidence": 0,
+    "fact_check_status": "error"
+  },
+  {
+    "text": "Cyril Ramaphosa has banned all foreign tourists from entering South Africa.",
+    "expected": "FAKE",
+    "predicted": "FAKE",
+    "confidence": 0.8,
+    "fact_check_status": "unverified"
+  },
+  {
+    "text": "Andres Manuel Lopez Obrador is a former President of Mexico.",
+    "expected": "REAL",
+    "predicted": "REAL",
+    "confidence": 0.85,
+    "fact_check_status": "verified"
+  },
+  {
+    "text": "AMLO has secretly sold the Baja California peninsula to the US.",
+    "expected": "FAKE",
+    "predicted": "FAKE",
+    "confidence": 0.95,
+    "fact_check_status": "debunked"
+  },
+  {
+    "text": "Javier Milei is the President of Argentina.",
+    "expected": "REAL",
+    "predicted": "ERROR",
+    "confidence": 0,
+    "fact_check_status": "error"
+  },
+  {
+    "text": "Javier Milei has officially adopted Bitcoin as the only legal currency in Argentina.",
+    "expected": "FAKE",
+    "predicted": "FAKE",
+    "confidence": 0.8,
+    "fact_check_status": "unverified"
+  },
+  {
+    "text": "Pedro Sanchez is the Prime Minister of Spain.",
+    "expected": "REAL",
+    "predicted": "ERROR",
+    "confidence": 0,
+    "fact_check_status": "error"
+  },
+  {
+    "text": "Pedro Sanchez has declared that Spain will revert to a monarchy rule.",
+    "expected": "FAKE",
+    "predicted": "FAKE",
+    "confidence": 0.95,
+    "fact_check_status": "debunked"
+  },
+  {
+    "text": "Mark Rutte is a Dutch politician who served as Prime Minister of the Netherlands.",
+    "expected": "REAL",
+    "predicted": "FAKE",
+    "confidence": 0.8,
+    "fact_check_status": "unverified"
+  },
+  {
+    "text": "Mark Rutte has secretly banned all bicycles in the Netherlands.",
+    "expected": "FAKE",
+    "predicted": "FAKE",
+    "confidence": 0.8,
+    "fact_check_status": "unverified"
+  },
+  {
+    "text": "Ulf Kristersson is the Prime Minister of Sweden.",
+    "expected": "REAL",
+    "predicted": "ERROR",
+    "confidence": 0,
+    "fact_check_status": "error"
+  },
+  {
+    "text": "Ulf Kristersson has declared that Sweden is permanently closing its borders.",
+    "expected": "FAKE",
+    "predicted": "REAL",
+    "confidence": 0.85,
+    "fact_check_status": "verified"
+  },
+  {
+    "text": "Jonas Gahr Store is the Prime Minister of Norway.",
+    "expected": "REAL",
+    "predicted": "ERROR",
+    "confidence": 0,
+    "fact_check_status": "error"
+  },
+  {
+    "text": "The Prime Minister of Norway has given away all oil wealth to its citizens.",
+    "expected": "FAKE",
+    "predicted": "REAL",
+    "confidence": 0.85,
+    "fact_check_status": "verified"
+  },
+  {
+    "text": "Mette Frederiksen is the Prime Minister of Denmark.",
+    "expected": "REAL",
+    "predicted": "REAL",
+    "confidence": 0.85,
+    "fact_check_status": "verified"
+  },
+  {
+    "text": "Mette Frederiksen has officially sold Greenland to the United States.",
+    "expected": "FAKE",
+    "predicted": "FAKE",
+    "confidence": 0.8,
+    "fact_check_status": "unverified"
+  },
+  {
+    "text": "Alexander De Croo is the Prime Minister of Belgium.",
+    "expected": "REAL",
+    "predicted": "REAL",
+    "confidence": 0.85,
+    "fact_check_status": "verified"
+  },
+  {
+    "text": "Alexander De Croo has banned all chocolate production in Belgium.",
+    "expected": "FAKE",
+    "predicted": "REAL",
+    "confidence": 0.85,
+    "fact_check_status": "verified"
+  }
+]

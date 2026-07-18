@@ -6,7 +6,25 @@ TRUSTED_DOMAINS = [
     'snopes.com', 'politifact.com', 'factcheck.org', 'reuters.com',
     'apnews.com', 'bbc.com', 'altnews.in', 'boomlive.in', 'pib.gov.in',
     'newschecker.in', 'vishvasnews.com', 'factly.in', 'afp.com',
-    'leadstories.com', 'logically.ai', 'fullfact.org', 'msn.com'
+    'leadstories.com', 'logically.ai', 'fullfact.org', 'msn.com',
+    # General knowledge, news and entertainment domains
+    'wikipedia.org', 'imdb.com', 'forbes.com', 'nytimes.com', 'cnn.com',
+    'theguardian.com', 'wsj.com', 'washingtonpost.com', 'bloomberg.com',
+    'ndtv.com', 'timesofindia.indiatimes.com', 'hindustantimes.com',
+    'indianexpress.com', 'thehindu.com', 'news18.com', 'indiatoday.in',
+    'yahoo.com', 'variety.com', 'hollywoodreporter.com', 'deadline.com',
+    'rollingstone.com', 'billboard.com', 'people.com', 'etonline.com',
+    'britannica.com', 'biography.com',
+    # Indian regional, entertainment, and digital news domains
+    'pinkvilla.com', 'bollywoodhungama.com', 'koimoi.com', 'tellychakkar.com',
+    'abplive.com', 'aajtak.in', 'zeenews.india.com', 'dnaindia.com',
+    'firstpost.com', 'deccanchronicle.com', 'thestatesman.com',
+    'telegraphindia.com', 'mid-day.com', 'tribuneindia.com', 'thequint.com',
+    'scroll.in', 'thewire.in', 'livemint.com', 'indiatvnews.com',
+    'republicworld.com', 'asianetnews.com', 'mathrubhumi.com',
+    'manoramaonline.com', 'dinamalar.com', 'vikatan.com', 'eenadu.net',
+    'sakshi.com', 'prajavani.net', 'vijaykarnataka.com', 'assamtribune.com',
+    'gujaratsamachar.com', 'sandesh.com', 'lokmat.com'
 ]
 
 # Keywords that indicate a claim is false
@@ -115,7 +133,7 @@ def _source_confirms_claim(snippet, query_words):
     matched = sum(1 for w in query_words if w in snippet_lower)
     overlap = matched / len(query_words)
 
-    return overlap >= 0.5
+    return overlap >= 0.3
 
 
 def search_and_verify(text):
@@ -237,9 +255,9 @@ def search_and_verify(text):
         # 1. Zero debunk signals
         # 2. At least 2 trusted sources that actually confirm (not just mention)
         # 3. No refutation found anywhere
-        # 4. At least 3 total results
-        if debunk_score == 0 and not refutation_found and total_results >= 3:
-            if confirm_score >= 2:
+        # 4. At least 1 total result (changed to be more lenient for general facts)
+        if debunk_score == 0 and not refutation_found and total_results >= 1:
+            if confirm_score >= 1:
                 return {
                     'status': 'verified',
                     'message': 'Live Web Search: Claim is supported by credible sources.',

@@ -87,23 +87,6 @@ def analyze():
     is_isolated_headline = is_short and no_urls_cited and not has_attribution
     is_unverified_article = is_unknown and no_urls_cited and not has_attribution
 
-    if is_isolated_headline or is_unverified_article:
-        classification['label'] = 'FAKE'
-        classification['fake_prob'] = max(0.80, classification.get('fake_prob', 0.5) + 0.3)
-        classification['real_prob'] = 1.0 - classification['fake_prob']
-        classification['confidence'] = classification['fake_prob']
-        
-        msg = "Unverified Claim: Lacks sources, citations, or verifiable attribution"
-        if is_isolated_headline:
-            msg = "Isolated Headline: No article or source provided to verify the claim"
-            
-        if 'features' in classification and isinstance(classification['features'], list):
-            if msg not in classification['features']:
-                classification['features'].append(msg)
-        if 'top_features' in classification and isinstance(classification['top_features'], list):
-            if msg not in classification['top_features']:
-                classification['top_features'].append(msg)
-
     # ---------------------------------------------------------
     # NEW: Live Web Fact Checking
     # ---------------------------------------------------------
@@ -119,12 +102,10 @@ def analyze():
         if 'features' in classification: classification['features'].append(msg)
         if 'top_features' in classification: classification['top_features'].append(msg)
     elif fact_check['status'] == 'verified':
-        # CRITICAL FIX: The fact checker "verified" should NOT override a strong
-        # FAKE classification. If the heuristic/ML classifier flagged it as FAKE
-        # with high confidence, trust the classifier over a web search that just
-        # found articles mentioning related keywords.
+        # The fact checker "verified" should override weak/moderate FAKE classifications
+        # but respect extremely confident FAKE classifications from the ML/heuristic model.
         classifier_says_fake = classification['label'] == 'FAKE'
-        classifier_high_confidence = classification.get('fake_prob', 0) >= 0.50
+        classifier_high_confidence = classification.get('fake_prob', 0) >= 0.85
 
         if classifier_says_fake and classifier_high_confidence:
             # Conflicting signals: classifier says FAKE but web search found
@@ -142,6 +123,25 @@ def analyze():
             msg = "Fact Checked: Live web search found credible sources verifying this claim."
             if 'features' in classification: classification['features'].append(msg)
             if 'top_features' in classification: classification['top_features'].append(msg)
+    else:
+        # Fact check was unverified or inconclusive
+        # Apply penalty for unverified/unattributed claims
+        if is_isolated_headline or is_unverified_article:
+            classification['label'] = 'FAKE'
+            classification['fake_prob'] = max(0.80, classification.get('fake_prob', 0.5) + 0.3)
+            classification['real_prob'] = 1.0 - classification['fake_prob']
+            classification['confidence'] = classification['fake_prob']
+            
+            msg = "Unverified Claim: Lacks sources, citations, or verifiable attribution"
+            if is_isolated_headline:
+                msg = "Isolated Headline: No article or source provided to verify the claim"
+                
+            if 'features' in classification and isinstance(classification['features'], list):
+                if msg not in classification['features']:
+                    classification['features'].append(msg)
+            if 'top_features' in classification and isinstance(classification['top_features'], list):
+                if msg not in classification['top_features']:
+                    classification['top_features'].append(msg)
 
     # Store in database
     article = Article(
