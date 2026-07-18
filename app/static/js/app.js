@@ -128,6 +128,54 @@ function displayResults(data) {
         liveFactCheckCard.style.display = 'none';
     }
 
+    // NEW: AI Content Detection
+    const aiDetectionCard = document.getElementById('aiDetectionCard');
+    if (data.ai_detection && data.ai_detection.signals && data.ai_detection.signals.length > 0) {
+        aiDetectionCard.style.display = 'block';
+        
+        const aiStatus = document.getElementById('aiDetectionStatus');
+        const aiProb = document.getElementById('aiDetectionProb');
+        
+        const probPct = Math.round(data.ai_detection.ai_probability * 100);
+        aiProb.textContent = `${probPct}% Probability`;
+        
+        if (data.ai_detection.is_ai_generated) {
+            aiStatus.textContent = "High likelihood of AI generation detected";
+            aiStatus.style.color = "var(--accent-magenta)";
+            aiProb.style.color = "var(--accent-magenta)";
+            aiDetectionCard.style.borderColor = "var(--accent-magenta)";
+        } else {
+            aiStatus.textContent = "Text appears mostly human-written";
+            aiStatus.style.color = "var(--text-secondary)";
+            aiProb.style.color = "var(--text-secondary)";
+            aiDetectionCard.style.borderColor = "var(--border-color)";
+        }
+        
+        const fictionalDiv = document.getElementById('aiFictionalEntities');
+        const fictionalTags = document.getElementById('aiFictionalTags');
+        if (data.ai_detection.fictional_entities && data.ai_detection.fictional_entities.length > 0) {
+            fictionalDiv.style.display = 'block';
+            fictionalTags.innerHTML = data.ai_detection.fictional_entities.map(e => 
+                `<span class="feature-tag suspicious">${e}</span>`
+            ).join('');
+        } else {
+            fictionalDiv.style.display = 'none';
+        }
+        
+        const signalsDiv = document.getElementById('aiDetectionSignals');
+        if (data.ai_detection.signals.length > 0) {
+            signalsDiv.innerHTML = data.ai_detection.signals.map(s => {
+                // s is [name, score, description]
+                const color = s[1] > 0.5 ? 'var(--accent-amber)' : 'var(--text-muted)';
+                return `<span class="feature-tag" style="border-color: rgba(255,255,255,0.1); color: ${color};">${s[2]}</span>`;
+            }).join('');
+        } else {
+            signalsDiv.innerHTML = '';
+        }
+    } else if (aiDetectionCard) {
+        aiDetectionCard.style.display = 'none';
+    }
+
     const resultContainer = document.getElementById('resultContainer');
     resultContainer.classList.remove('hidden');
 

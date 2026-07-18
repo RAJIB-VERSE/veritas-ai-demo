@@ -57,6 +57,9 @@ class Analysis(db.Model):
     # Live web fact check
     fact_check_result = db.Column(db.Text, nullable=True)
 
+    # AI-generated content detection
+    ai_detection_result = db.Column(db.Text, nullable=True)  # JSON string
+
     analyzed_at = db.Column(db.DateTime, default=lambda: datetime.now(timezone.utc))
 
     def to_dict(self):
@@ -68,6 +71,7 @@ class Analysis(db.Model):
             'confidence': self.confidence or 0.0,
             'model_used': self.model_used,
             'fact_check': json.loads(self.fact_check_result) if self.fact_check_result else None,
+            'ai_detection': json.loads(self.ai_detection_result) if self.ai_detection_result else None,
             'sentiment': {
                 'compound': self.sentiment_compound if self.sentiment_compound is not None else 0.0,
                 'positive': self.sentiment_positive if self.sentiment_positive is not None else 0.0,

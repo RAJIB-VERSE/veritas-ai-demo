@@ -76,6 +76,28 @@
             </div>
         </div>
 
+        <!-- NEW: AI Content Detection -->
+        <div class="glass-card mb-lg" id="detailAiDetectionCard" style="display: none; padding: var(--space-md); border-left: 4px solid var(--accent-magenta);">
+            <h3 style="margin-bottom: var(--space-sm); font-size: 1.1rem; display: flex; align-items: center; gap: 8px;">
+                <span class="icon">🤖</span> AI Content Detection
+            </h3>
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--space-sm);">
+                <div id="detailAiDetectionStatus" style="font-size: 0.95rem; font-weight: 500;">
+                    <!-- Status text will go here -->
+                </div>
+                <div id="detailAiDetectionProb" style="font-weight: bold;"></div>
+            </div>
+            
+            <div id="detailAiFictionalEntities" class="mb-sm" style="display: none;">
+                <div style="font-size: 0.8rem; color: var(--accent-red); margin-bottom: 4px;">Unverifiable Entities:</div>
+                <div class="feature-tags" id="detailAiFictionalTags"></div>
+            </div>
+            
+            <div id="detailAiDetectionSignals" class="feature-tags" style="margin-top: var(--space-sm);">
+                <!-- Signals will go here -->
+            </div>
+        </div>
+
         <!-- Details Grid -->
         <div class="analysis-grid">
             <div class="glass-card analysis-section">
