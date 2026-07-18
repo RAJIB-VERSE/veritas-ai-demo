@@ -15,7 +15,7 @@ from app.services.preprocessor import clean_text
 api_bp = Blueprint('api', __name__)
 
 
-@api_bp.route('/analyze', methods=['POST'])
+@api_bp.route('/evaluate', methods=['POST'])
 def analyze():
     """
     Analyze a news article for fake news indicators.

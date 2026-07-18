@@ -63,7 +63,7 @@ async function analyzeArticle() {
     btn.textContent = 'Analyzing...';
 
     try {
-        const response = await fetch('/api/analyze', {
+        const response = await fetch('/api/evaluate', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
