@@ -86,13 +86,27 @@ def analyze():
     # Step 1: AI-Generated Content Detection (HIGHEST PRIORITY)
     # ---------------------------------------------------------
     from app.services.ai_detector import detect_ai_content
-    ai_detection = detect_ai_content(text, verify_entities=True)
+    try:
+        ai_detection = detect_ai_content(text, verify_entities=True)
+    except Exception as e:
+        print(f"[AI Detection Error] {e}")
+        ai_detection = {
+            'is_ai_generated': False,
+            'ai_probability': 0.0,
+            'signals': [],
+            'fictional_entities': [],
+            'verified_entities': [],
+        }
 
     # ---------------------------------------------------------
     # Step 2: Live Web Fact Checking
     # ---------------------------------------------------------
     from app.services.fact_checker import search_and_verify
-    fact_check = search_and_verify(text)
+    try:
+        fact_check = search_and_verify(text)
+    except Exception as e:
+        print(f"[Fact Check Error] {e}")
+        fact_check = {'status': 'error', 'message': f'Web search unavailable: {str(e)}'}
 
     # ---------------------------------------------------------
     # Step 3: Compute auxiliary signals
