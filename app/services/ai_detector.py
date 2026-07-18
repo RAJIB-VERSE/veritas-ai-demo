@@ -39,6 +39,12 @@ EXPLICIT_AI_MARKERS = [
     'as a machine learning model', 'as an artificial intelligence',
     'since i am an ai', 'i am a text-based ai', 'as an automated assistant',
     'not a real person', 'fabricated text', 'simulated scenario',
+    
+    # Jailbreak / Masking Prompt Slips
+    'here is the text with', 'here is the post with',
+    'sounding like a human', 'with spelling mistakes',
+    'uneven pacing', 'like a human on reddit',
+    'as requested, here is',
 ]
 
 # The word "fictional" appearing near an entity name (e.g. "the fictional
@@ -436,6 +442,31 @@ def _verify_entities_exist(text):
 
 
 # ---------------------------------------------------------------------------
+# Signal 9: Vocabulary Mismatch (Slang vs Formal)
+# ---------------------------------------------------------------------------
+INTERNET_SLANG = [' tb', ' tbh', ' ngl', ' lmao', ' lol', ' wtf', ' idk', ' gonna', ' wanna', ' dunno', ' ur ', ' bro ', ' dude ']
+
+def _analyze_vocab_mismatch(text_lower):
+    """
+    Detects when an AI is prompted to "sound like a human on Reddit" or use slang.
+    LLMs often mix forced slang/chatspeak with their innate formal vocabulary
+    (e.g., "tbh it is fundamentally flawed"). Humans rarely mix these extremes.
+    
+    Returns (score, description).
+    """
+    slang_count = sum(text_lower.count(s) for s in INTERNET_SLANG)
+    formal_count = sum(text_lower.count(a) for a in AI_ADVERBS)
+    
+    # If it has noticeable slang AND noticeable formal AI adverbs, it's a strong signal
+    if slang_count >= 2 and formal_count >= 2:
+        return 0.85, f"High vocabulary mismatch: {slang_count} slang terms mixed with {formal_count} formal academic words (AI masking signature)"
+    elif slang_count >= 1 and formal_count >= 3:
+        return 0.60, f"Vocabulary mismatch: Internet slang mixed with heavy formal vocabulary"
+    
+    return 0.0, ""
+
+
+# ---------------------------------------------------------------------------
 # Main detection function
 # ---------------------------------------------------------------------------
 
@@ -522,6 +553,12 @@ def detect_ai_content(text, verify_entities=True):
         signals.append(('paragraph_regularity', para_score,
                         f'Paragraph lengths are unusually regular (AI-typical)'))
         weighted_scores.append(('paragraph_regularity', para_score, 0.8))
+
+    # --- Signal 9: Vocabulary Mismatch (weight: very high) ---
+    vocab_score, vocab_desc = _analyze_vocab_mismatch(text_lower)
+    if vocab_score > 0.0:
+        signals.append(('vocab_mismatch', vocab_score, vocab_desc))
+        weighted_scores.append(('vocab_mismatch', vocab_score, 2.5))  # High weight because it catches jailbreaks
 
     # --- Signal 8: Fictional entity verification (weight: VERY high) ---
     fictional_entities = []
